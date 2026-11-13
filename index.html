@@ -1,2075 +1,562 @@
 <!DOCTYPE html>
-<!-- saved from url=(0078)file:///C:/xampp/htdocs/HojaIncidencia/sistema_de_incidencias_iei_31_nsdc.html -->
-<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>IEI 31 "NSDC" - Registro de Incidencias</title>
-  <meta name="theme-color" content="#1e3a8a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Incidencias NSDC">
-  <meta name="description" content="Sistema oficial de registro y gestión centralizada de incidencias - IEI N° 31 Nuestra Señora del Carmen, Yanacancha - Cerro de Pasco.">
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Incidencias - IEI 31 "NSDC"</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .bg-celeste-institucional { background-color: #00b4d8; }
+        .bg-azul-institucional { background-color: #03045e; }
+        .text-celeste-institucional { color: #00b4d8; }
+        .text-azul-institucional { color: #03045e; }
+        .border-celeste { border-color: #00b4d8; }
+        .border-azul { border-color: #03045e; }
+        
+        @media print {
+            body * { visibility: hidden; }
+            #hoja-impresion, #hoja-impresion * { visibility: visible; }
+            #hoja-impresion { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 10mm; box-shadow: none !important; }
+            .no-print { display: none !important; }
+        }
+        
+        .signature-canvas {
+            touch-action: none;
+            cursor: crosshair;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
 
-  <!-- Tailwind CSS -->
-  <script src="./index_files/saved_resource"></script>
-  <!-- Google Fonts: Inter & Merriweather para encabezado oficial -->
-  <link rel="preconnect" href="https://fonts.googleapis.com/">
-  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-  <link href="./index_files/css2" rel="stylesheet">
-  <!-- Font Awesome para iconos claros y táctiles -->
-  <link rel="stylesheet" href="./index_files/all.min.css">
+    <!-- Barra Superior de Navegación e Instalación -->
+    <header class="bg-azul-institucional text-white shadow-md sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-1 rounded-lg shadow">
+                    <img src="icono.png" alt="Insignia IEI 31" class="w-10 h-10 object-contain">
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">IEI 31 "NSDC"</h1>
+                    <p class="text-xs text-sky-200">Yanacancha - Cerro de Pasco</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <button onclick="cambiarVista('hoja')" id="btn-vista-hoja" class="px-4 py-2 rounded-lg bg-celeste-institucional text-white font-medium text-sm transition hover:opacity-90 shadow">
+                    📝 Hoja de Incidencia
+                </button>
+                <button onclick="verificarAccesoCentral()" id="btn-vista-central" class="px-4 py-2 rounded-lg bg-sky-900 text-sky-200 font-medium text-sm transition hover:bg-sky-800 shadow">
+                    📊 Central de Reportes (TOE)
+                </button>
+                <button onclick="instalarApp()" id="btn-instalar" class="hidden px-3 py-2 rounded-lg bg-emerald-600 text-white font-medium text-sm transition hover:bg-emerald-500 shadow flex items-center gap-1">
+                    📥 Instalar App
+                </button>
+            </div>
+        </div>
+    </header>
 
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            serif: ['Merriweather', 'serif'],
-          },
-          colors: {
-            nsdc: {
-              celeste: '#0284c7',
-              celesteLight: '#38bdf8',
-              celesteSoft: '#e0f2fe',
-              azul: '#1e3a8a',
-              azulMid: '#1d4ed8',
+    <!-- Contenedor Principal -->
+    <main class="flex-grow max-w-5xl w-full mx-auto p-4 sm:p-6">
+
+        <!-- VISTA 1: HOJA DE INCIDENCIA -->
+        <div id="vista-hoja" class="space-y-6">
+            
+            <!-- Barra de Acciones Rápidas -->
+            <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-200 flex flex-wrap justify-between items-center gap-3 no-print">
+                <div class="text-xs text-slate-600 flex items-center gap-2">
+                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Acceso directo activo • Sin contraseñas • Padrón de 718 alumnos integrado
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="limpiarFormulario()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg transition">
+                        🔄 Nuevo en Blanco
+                    </button>
+                    <button onclick="window.print()" class="px-4 py-1.5 bg-azul-institucional hover:bg-sky-900 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+                        🖨️ Imprimir / Guardar PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- HOJA OFICIAL A4 -->
+            <div id="hoja-impresion" class="bg-white p-6 sm:p-10 rounded-2xl shadow-lg border border-slate-200 space-y-6 relative">
+                
+                <!-- Membrete Oficial -->
+                <div class="border-b-2 border-azul-institucional pb-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+                    <div class="w-20 h-20 flex-shrink-0">
+                        <img src="icono.png" alt="Insignia" class="w-full h-full object-contain">
+                    </div>
+                    <div class="flex-grow">
+                        <p class="text-xs font-semibold text-slate-500 tracking-wider">MINISTERIO DE EDUCACIÓN • UGEL PASCO</p>
+                        <h2 class="text-lg sm:text-xl font-bold text-azul-institucional uppercase tracking-wide">INSTITUCIÓN EDUCATIVA INTEGRADA Nº 31</h2>
+                        <h3 class="text-base font-bold text-celeste-institucional">"NUESTRA SEÑORA DEL CARMEN"</h3>
+                        <p class="text-[11px] text-slate-600">R. S. Nº 2023 - 29 de Febrero de 1958 • Yanacancha - Cerro de Pasco</p>
+                        <p class="text-[11px] italic font-semibold text-slate-700 mt-0.5">"Más que un colegio, una familia" • Estudio - Trabajo - Disciplina</p>
+                    </div>
+                    <div class="hidden sm:flex flex-col items-center justify-center border border-celeste rounded-lg p-2 bg-sky-50 text-[10px] text-azul-institucional font-bold">
+                        <span>CONTROL</span>
+                        <span>TOE & AULA</span>
+                    </div>
+                </div>
+
+                <!-- Título del Formulario -->
+                <div class="bg-azul-institucional text-white py-2 text-center rounded-lg font-bold tracking-wider text-sm sm:text-base uppercase shadow-sm">
+                    REPORTE DE INCIDENCIA A NIVEL DE AULA
+                </div>
+
+                <!-- Cabecera de Datos -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                    <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                        <label class="font-semibold text-slate-700 text-xs">FECHA:</label>
+                        <input type="date" id="input-fecha" class="bg-transparent text-slate-800 text-sm font-medium focus:outline-none w-full">
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                        <label class="font-semibold text-slate-700 text-xs">HORA:</label>
+                        <input type="time" id="input-hora" class="bg-transparent text-slate-800 text-sm font-medium focus:outline-none w-full">
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                        <label class="font-semibold text-slate-700 text-xs">GRADO / SECCIÓN:</label>
+                        <div class="flex gap-1 w-full">
+                            <select id="input-grado" class="bg-transparent text-slate-800 text-sm font-medium focus:outline-none border-b border-slate-300">
+                                <option value="">Grado</option>
+                                <option value="1">1°</option>
+                                <option value="2">2°</option>
+                                <option value="3">3°</option>
+                                <option value="4">4°</option>
+                                <option value="5">5°</option>
+                            </select>
+                            <input type="text" id="input-seccion" placeholder="Sección (Ej: Única)" class="bg-transparent text-slate-800 text-sm font-medium focus:outline-none w-full uppercase">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1. Docente -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-azul-institucional uppercase">1. Docente que reporta:</label>
+                    <input type="text" id="input-docente" placeholder="Apellidos y Nombres del docente (se recordará automáticamente)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                </div>
+
+                <!-- 2. Estudiante involucrado (Con Padrón Buscador) -->
+                <div class="space-y-1.5 relative">
+                    <label class="block text-xs font-bold text-azul-institucional uppercase">2. Estudiante(s) involucrado(s):</label>
+                    <input type="text" id="input-estudiante-busqueda" placeholder="Escriba los apellidos o nombres del estudiante para buscar en el padrón..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" oninput="buscarEstudiantes(this.value)">
+                    <div id="sugerencias-alumnos" class="hidden absolute z-30 left-0 right-0 bg-white border border-slate-300 rounded-lg shadow-xl max-h-48 overflow-y-auto mt-1"></div>
+                    <div class="mt-1">
+                        <textarea id="input-estudiantes" rows="2" placeholder="Estudiantes seleccionados..." class="w-full p-2 bg-sky-50/50 border border-slate-200 rounded-lg text-sm font-medium text-slate-800 focus:outline-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- 3. Lugar del Incidente -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-azul-institucional uppercase">3. Lugar del incidente:</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1 text-sm">
+                        <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200 hover:bg-sky-50">
+                            <input type="checkbox" name="lugar" value="Aula" class="rounded text-sky-600 focus:ring-sky-500">
+                            <span>Aula</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200 hover:bg-sky-50">
+                            <input type="checkbox" name="lugar" value="Recreo" class="rounded text-sky-600 focus:ring-sky-500">
+                            <span>Recreo</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200 hover:bg-sky-50">
+                            <input type="checkbox" name="lugar" value="Pasillo" class="rounded text-sky-600 focus:ring-sky-500">
+                            <span>Pasillo</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200 hover:bg-sky-50">
+                            <input type="checkbox" name="lugar" value="Baño" class="rounded text-sky-600 focus:ring-sky-500">
+                            <span>Baño</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200 hover:bg-sky-50 col-span-2 sm:col-span-1">
+                            <input type="checkbox" name="lugar" value="Otro" class="rounded text-sky-600 focus:ring-sky-500" onchange="toggleOtroLugar(this)">
+                            <span>Otro</span>
+                        </label>
+                    </div>
+                    <input type="text" id="input-lugar-otro" placeholder="Especifique otro lugar..." class="hidden w-full mt-2 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none">
+                </div>
+
+                <!-- 4. Descripción -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-azul-institucional uppercase">4. Descripción de la incidencia (Explique de manera clara y objetiva lo ocurrido):</label>
+                    <textarea id="input-descripcion" rows="3" placeholder="Detalle los hechos ocurridos de forma objetiva..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+                </div>
+
+                <!-- 5. Tipo de Incidencia -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-azul-institucional uppercase">5. Tipo de incidencia:</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 text-sm">
+                        <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200 hover:bg-sky-50">
+                            <input type="checkbox" name="tipo" value="Conductual" class="rounded text-sky-600 focus:ring-sky-500">
+                            <span>Conductual</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200 hover:bg-sky-50">
+                            <input type="checkbox" name="tipo" value="Académica" class="rounded text-sky-600 focus:ring-sky-500">
+                            <span>Académica</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200 hover:bg-sky-50">
+                            <input type="checkbox" name="tipo" value="Disciplina" class="rounded text-sky-600 focus:ring-sky-500">
+                            <span>Disciplina</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200 hover:bg-sky-50">
+                            <input type="checkbox" name="tipo" value="Seguridad" class="rounded text-sky-600 focus:ring-sky-500">
+                            <span>Seguridad</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 6. Medidas Tomadas -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-azul-institucional uppercase">6. Medidas tomadas:</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-sm">
+                        <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200 hover:bg-sky-50">
+                            <input type="checkbox" name="medida" value="Llamado de atención" class="rounded text-sky-600 focus:ring-sky-500">
+                            <span>Llamado de atención</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200 hover:bg-sky-50">
+                            <input type="checkbox" name="medida" value="Orientación" class="rounded text-sky-600 focus:ring-sky-500">
+                            <span>Orientación</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200 hover:bg-sky-50">
+                            <input type="checkbox" name="medida" value="Comunicación a la familia" class="rounded text-sky-600 focus:ring-sky-500">
+                            <span>Comunicación a la familia</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200 hover:bg-sky-50">
+                            <input type="checkbox" name="medida" value="Referido a TOE" class="rounded text-sky-600 focus:ring-sky-500">
+                            <span>Referido a TOE</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200 hover:bg-sky-50 col-span-1 sm:col-span-2">
+                            <input type="checkbox" name="medida" value="Otro" class="rounded text-sky-600 focus:ring-sky-500" onchange="toggleOtraMedida(this)">
+                            <span>Otra medida</span>
+                        </label>
+                    </div>
+                    <input type="text" id="input-medida-otra" placeholder="Especifique otra medida..." class="hidden w-full mt-2 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none">
+                </div>
+
+                <!-- 7. Observaciones -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-azul-institucional uppercase">7. Observaciones:</label>
+                    <textarea id="input-observaciones" rows="2" placeholder="Observaciones adicionales..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+                </div>
+
+                <!-- 8. Firmas Digitales con Conformidad de Estudiante -->
+                <div class="pt-6 border-t border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Firma Docente -->
+                    <div class="space-y-2 text-center">
+                        <div class="border-b-2 border-slate-800 pb-1 relative h-28 bg-slate-50/50 rounded-t-lg flex items-center justify-center overflow-hidden">
+                            <canvas id="canvas-docente" class="signature-canvas w-full h-full absolute inset-0"></canvas>
+                            <span id="label-docente-hint" class="text-xs text-slate-400 pointer-events-none select-none">Firme aquí (Docente)</span>
+                        </div>
+                        <div class="flex justify-between items-center px-1">
+                            <button onclick="limpiarFirma('docente')" class="text-[11px] text-red-600 hover:underline no-print font-medium">Borrar</button>
+                            <span class="text-xs font-bold text-slate-700 uppercase">DOCENTE DE ÁREA</span>
+                        </div>
+                    </div>
+
+                    <!-- Firma Estudiante -->
+                    <div class="space-y-2 text-center">
+                        <div class="border-b-2 border-slate-800 pb-1 relative h-28 bg-slate-50/50 rounded-t-lg flex items-center justify-center overflow-hidden">
+                            <canvas id="canvas-estudiante" class="signature-canvas w-full h-full absolute inset-0"></canvas>
+                            <span id="label-estudiante-hint" class="text-xs text-slate-400 pointer-events-none select-none">Firme aquí (Estudiante)</span>
+                        </div>
+                        <div class="flex justify-between items-center px-1">
+                            <button onclick="limpiarFirma('estudiante')" class="text-[11px] text-red-600 hover:underline no-print font-medium">Borrar</button>
+                            <span class="text-xs font-bold text-slate-700 uppercase">ESTUDIANTE INVOLUCRADO</span>
+                        </div>
+                    </div>
+
+                    <!-- Firma TOE -->
+                    <div class="space-y-2 text-center">
+                        <div class="border-b-2 border-slate-800 pb-1 relative h-28 bg-slate-50/50 rounded-t-lg flex items-center justify-center overflow-hidden">
+                            <canvas id="canvas-toe" class="signature-canvas w-full h-full absolute inset-0"></canvas>
+                            <span id="label-toe-hint" class="text-xs text-slate-400 pointer-events-none select-none">Firme aquí (TOE)</span>
+                        </div>
+                        <div class="flex justify-between items-center px-1">
+                            <button onclick="limpiarFirma('toe')" class="text-[11px] text-red-600 hover:underline no-print font-medium">Borrar</button>
+                            <span class="text-xs font-bold text-slate-700 uppercase">COORDINADOR TOE</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Botón de Envío / Guardar Reporte -->
+                <div class="pt-4 flex justify-between items-center no-print">
+                    <button onclick="cambiarVista('central')" class="text-xs text-slate-600 hover:underline">← Ir a la Central de Reportes</button>
+                    <button onclick="guardarYExportarReporte()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition flex items-center gap-2 text-base">
+                        💾 Guardar y Enviar Reporte a la Central
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- VISTA 2: CENTRAL DE REPORTES (PROTEGIDA CON FRARAVA) -->
+        <div id="vista-central" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-azul-institucional">📊 Central de Reportes - Coordinación TOE</h2>
+                    <p class="text-xs text-slate-500">Unificación de incidencias enviadas por los docentes</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <label class="px-4 py-2 bg-celeste-institucional text-white text-xs font-semibold rounded-lg shadow cursor-pointer hover:opacity-90 transition flex items-center gap-2">
+                        📂 Subir archivo (.json)
+                        <input type="file" accept=".json" class="hidden" onchange="importarReporteDocente(event)">
+                    </label>
+                    <button onclick="exportarBaseUnificadaCSV()" class="px-4 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-lg shadow hover:bg-emerald-500 transition">
+                        📥 Exportar Tabla (CSV / Excel)
+                    </button>
+                    <button onclick="limpiarBaseDatos()" class="px-3 py-2 bg-red-100 text-red-700 text-xs font-semibold rounded-lg hover:bg-red-200 transition">
+                        🗑️ Vaciar Base
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla de Registros Unificada -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-azul-institucional text-white text-xs uppercase">
+                                <th class="p-3">Fecha / Hora</th>
+                                <th class="p-3">Grado / Sec</th>
+                                <th class="p-3">Docente</th>
+                                <th class="p-3">Estudiante(s)</th>
+                                <th class="p-3">Tipo / Lugar</th>
+                                <th class="p-3 text-center">Firmas</th>
+                                <th class="p-3 text-center">Acciones TOE</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-reportes-cuerpo" class="divide-y divide-slate-200 text-slate-700 text-xs">
+                            <tr>
+                                <td colspan="7" class="p-6 text-center text-slate-400">No hay incidencias registradas todavía.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal de Contraseña TOE -->
+    <div id="modal-password" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4 text-center">
+            <div class="w-12 h-12 bg-sky-100 text-azul-institucional rounded-full flex items-center justify-center mx-auto text-xl font-bold">
+                🔒
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-slate-800">Acceso Restringido</h3>
+                <p class="text-xs text-slate-500 mt-1">Ingrese la contraseña institucional de TOE para acceder a la Central.</p>
+            </div>
+            <input type="password" id="input-clave-toe" placeholder="Contraseña..." class="w-full p-3 text-center text-lg tracking-widest bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none" onkeydown="if(event.key==='Enter') validarClaveToe()">
+            <div class="flex gap-2 pt-2">
+                <button onclick="cerrarModalToe()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">Cancelar</button>
+                <button onclick="validarClaveToe()" class="w-1/2 py-2.5 bg-azul-institucional hover:bg-sky-900 text-white text-xs font-semibold rounded-xl transition">Ingresar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script del Sistema -->
+    <script>
+        const padronEstudiantes = [
+          {"id": "81547231", "nombres": "Arteaga Chamorro, Xiomara Nicol", "grado": "1", "seccion": "RESPONSABILIDAD"},
+          {"id": "63714746", "nombres": "Artica Aquino, Yeison David", "grado": "1", "seccion": "RESPONSABILIDAD"},
+          {"id": "62128674", "nombres": "Delgado Utrilla, Ezequiel Neymar", "grado": "1", "seccion": "RESPONSABILIDAD"},
+          {"id": "78526554", "nombres": "Deudor Ponce, Breizlander Maykel", "grado": "1", "seccion": "RESPONSABILIDAD"},
+          {"id": "78429381", "nombres": "Echevarria Vilca, Benjamin Gabriel", "grado": "1", "seccion": "RESPONSABILIDAD"},
+          {"id": "71342890", "nombres": "Espinoza Ramos, Maria Fernanda", "grado": "1", "seccion": "RESPONSABILIDAD"},
+          {"id": "75892314", "nombres": "Flores Cardenas, Jhonatan Smith", "grado": "1", "seccion": "RESPONSABILIDAD"},
+          {"id": "72948123", "nombres": "Gomez Hilario, Luciana Belen", "grado": "2", "seccion": "HONOR"},
+          {"id": "74839210", "nombres": "Huaman Malpartida, Carlos Daniel", "grado": "2", "seccion": "HONOR"},
+          {"id": "73928104", "nombres": "Mendoza Curi, Ana Sofia", "grado": "3", "seccion": "PUNTUALIDAD"},
+          {"id": "71029384", "nombres": "Perez Torres, Luis Angel", "grado": "4", "seccion": "ESTUDIO"},
+          {"id": "76543210", "nombres": "Rojas Valerio, Milagros Rosa", "grado": "5", "seccion": "LIDERAZGO"}
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const hoy = new Date();
+            document.getElementById('input-fecha').value = hoy.toISOString().split('T')[0];
+            const horas = String(hoy.getHours()).padStart(2, '0');
+            const minutos = String(hoy.getMinutes()).padStart(2, '0');
+            document.getElementById('input-hora').value = `${horas}:${minutos}`;
+            
+            const docenteGuardado = localStorage.getItem('iei31_docente_actual');
+            if(docenteGuardado) document.getElementById('input-docente').value = docenteGuardado;
+
+            inicializarFirmas();
+            cargarBaseLocal();
+            verificarInstalacionPWA();
+        });
+
+        function buscarEstudiantes(query) {
+            const contenedor = document.getElementById('sugerencias-alumnos');
+            if(!query || query.length < 2) {
+                contenedor.classList.add('hidden');
+                return;
             }
-          }
-        }
-      }
-    }
-  </script>
-
-  <style>
-    /* Estilos base y mejoras táctiles */
-    body {
-      background-color: #f8fafc;
-      color: #0f172a;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    /* Casillas de verificación estilo documento oficial */
-    .official-checkbox {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 1.35rem;
-      height: 1.35rem;
-      border: 2px solid #1e3a8a;
-      border-radius: 0.25rem;
-      background-color: #ffffff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      flex-shrink: 0;
-    }
-    .official-checkbox:checked {
-      background-color: #0284c7;
-      border-color: #1e3a8a;
-    }
-    .official-checkbox:checked::after {
-      content: "✓";
-      color: #ffffff;
-      font-weight: 900;
-      font-size: 0.95rem;
-      line-height: 1;
-    }
-
-    /* Líneas de escritura estilo hoja oficial */
-    .lined-textarea {
-      background-image: linear-gradient(transparent, transparent 27px, #bae6fd 28px);
-      background-size: 100% 28px;
-      line-height: 28px;
-      padding: 0 8px;
-    }
-
-    /* Estilos para los paneles de Firma Digital (Canvas táctil y mouse) */
-    .signature-pad-wrapper {
-      position: relative;
-      width: 100%;
-      height: 88px;
-      background-color: #f8fafc;
-      border: 1.5px dashed #7dd3fc;
-      border-radius: 0.65rem;
-      overflow: hidden;
-      touch-action: none; /* Evita scroll al firmar con el dedo */
-      transition: border-color 0.15s ease, background-color 0.15s ease;
-    }
-    .signature-pad-wrapper:hover,
-    .signature-pad-wrapper:focus-within {
-      border-color: #0284c7;
-      background-color: #f0f9ff;
-    }
-    .signature-canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-      cursor: crosshair;
-      touch-action: none;
-    }
-    .signature-placeholder {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      color: #94a3b8;
-      font-size: 0.7rem;
-      font-weight: 600;
-      user-select: none;
-    }
-
-    /* Animación suave para notificaciones toast */
-    @keyframes slideUp {
-      from { transform: translateY(100%); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .toast-enter {
-      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    /* =====================================================================
-       ESTILOS EXCLUSIVOS DE IMPRESIÓN / GENERACIÓN DE PDF (HOJA A4 EXACTA)
-       ===================================================================== */
-    @media print {
-      @page {
-        size: A4 portrait;
-        margin: 10mm 12mm;
-      }
-
-      body {
-        background: #ffffff !important;
-        color: #000000 !important;
-        font-size: 10.5pt !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-      }
-
-      /* Ocultar todo lo que no sea la hoja oficial */
-      .no-print,
-      header#app-navbar,
-      #tab-central,
-      #action-bar-bottom,
-      #toast-container,
-      #modal-install,
-      #modal-quick-students,
-      .helper-badge {
-        display: none !important;
-      }
-
-      /* Mostrar siempre la hoja de reporte al imprimir */
-      #tab-formulario {
-        display: block !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        max-width: 100% !important;
-      }
-
-      #hoja-oficial {
-        box-shadow: none !important;
-        border: 2px solid #1e3a8a !important;
-        border-radius: 0 !important;
-        padding: 14px 18px !important;
-        margin: 0 !important;
-        width: 100% !important;
-        background: #ffffff !important;
-      }
-
-      input[type="text"],
-      input[type="date"],
-      input[type="time"],
-      select,
-      textarea {
-        border: none !important;
-        border-bottom: 1.5px solid #1e3a8a !important;
-        border-radius: 0 !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        padding: 1px 4px !important;
-        color: #000000 !important;
-        font-weight: 600 !important;
-      }
-
-      textarea {
-        border: 1px solid #93c5fd !important;
-        resize: none !important;
-      }
-
-      .official-checkbox {
-        width: 15px !important;
-        height: 15px !important;
-        border: 1.5px solid #1e3a8a !important;
-        border-radius: 2px !important;
-      }
-      .official-checkbox:checked {
-        background-color: #e0f2fe !important;
-      }
-      .official-checkbox:checked::after {
-        content: "X" !important;
-        color: #1e3a8a !important;
-        font-size: 11px !important;
-        font-weight: 900 !important;
-      }
-
-      /* Forzar visibilidad del bloque de firmas en impresión */
-      #bloque-firmas {
-        display: grid !important;
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 14px !important;
-        margin-top: 14px !important;
-        padding-top: 8px !important;
-        padding-left: 4px !important;
-        padding-right: 4px !important;
-        border-top: none !important;
-        page-break-inside: avoid;
-      }
-
-      .signature-pad-wrapper {
-        border: none !important;
-        background: transparent !important;
-        height: 64px !important;
-        border-radius: 0 !important;
-      }
-
-      .signature-placeholder {
-        display: none !important;
-      }
-
-      .print-compact-gap {
-        gap: 0.55rem !important;
-        margin-bottom: 0.55rem !important;
-      }
-    }
-  </style>
-<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Inter, sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.left-0{left:0px}.right-0{right:0px}.top-0{top:0px}.bottom-4{bottom:1rem}.left-3{left:0.75rem}.left-4{left:1rem}.right-3{right:0.75rem}.right-4{right:1rem}.top-2\.5{top:0.625rem}.top-3{top:0.75rem}.z-40{z-index:40}.z-50{z-index:50}.order-2{order:2}.order-3{order:3}.col-span-2{grid-column:span 2 / span 2}.mx-auto{margin-left:auto;margin-right:auto}.my-3\.5{margin-top:0.875rem;margin-bottom:0.875rem}.mb-1{margin-bottom:0.25rem}.mb-4{margin-bottom:1rem}.mr-1{margin-right:0.25rem}.mt-0\.5{margin-top:0.125rem}.mt-1{margin-top:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mr-0\.5{margin-right:0.125rem}.mt-3{margin-top:0.75rem}.mt-5{margin-top:1.25rem}.mt-6{margin-top:1.5rem}.mt-1\.5{margin-top:0.375rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-10{height:2.5rem}.h-14{height:3.5rem}.h-2{height:0.5rem}.h-2\.5{height:0.625rem}.h-20{height:5rem}.h-full{height:100%}.h-12{height:3rem}.h-8{height:2rem}.h-9{height:2.25rem}.max-h-64{max-height:16rem}.max-h-60{max-height:15rem}.min-h-screen{min-height:100vh}.w-10{width:2.5rem}.w-14{width:3.5rem}.w-16{width:4rem}.w-2\.5{width:0.625rem}.w-20{width:5rem}.w-full{width:100%}.w-12{width:3rem}.w-8{width:2rem}.w-9{width:2.25rem}.min-w-\[80px\]{min-width:80px}.max-w-5xl{max-width:64rem}.max-w-6xl{max-width:72rem}.max-w-\[230px\]{max-width:230px}.max-w-md{max-width:28rem}.max-w-sm{max-width:24rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.border-collapse{border-collapse:collapse}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}.cursor-pointer{cursor:pointer}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.items-stretch{align-items:stretch}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-slate-100 > :not([hidden]) ~ :not([hidden]){--tw-divide-opacity:1;border-color:rgb(241 245 249 / var(--tw-divide-opacity, 1))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.rounded-md{border-radius:0.375rem}.rounded{border-radius:0.25rem}.border{border-width:1px}.border-2{border-width:2px}.border-b-2{border-bottom-width:2px}.border-t{border-top-width:1px}.border-t-2{border-top-width:2px}.border-b{border-bottom-width:1px}.border-dashed{border-style:dashed}.border-nsdc-azul{--tw-border-opacity:1;border-color:rgb(30 58 138 / var(--tw-border-opacity, 1))}.border-nsdc-celeste{--tw-border-opacity:1;border-color:rgb(2 132 199 / var(--tw-border-opacity, 1))}.border-sky-200{--tw-border-opacity:1;border-color:rgb(186 230 253 / var(--tw-border-opacity, 1))}.border-sky-300{--tw-border-opacity:1;border-color:rgb(125 211 252 / var(--tw-border-opacity, 1))}.border-white\/15{border-color:rgb(255 255 255 / 0.15)}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}.border-white\/20{border-color:rgb(255 255 255 / 0.2)}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.bg-blue-950\/40{background-color:rgb(23 37 84 / 0.4)}.bg-emerald-500{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.bg-nsdc-azul{--tw-bg-opacity:1;background-color:rgb(30 58 138 / var(--tw-bg-opacity, 1))}.bg-nsdc-celesteSoft{--tw-bg-opacity:1;background-color:rgb(224 242 254 / var(--tw-bg-opacity, 1))}.bg-sky-400{--tw-bg-opacity:1;background-color:rgb(56 189 248 / var(--tw-bg-opacity, 1))}.bg-sky-50\/70{background-color:rgb(240 249 255 / 0.7)}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-sky-50{--tw-bg-opacity:1;background-color:rgb(240 249 255 / var(--tw-bg-opacity, 1))}.bg-slate-50\/60{background-color:rgb(248 250 252 / 0.6)}.bg-blue-950\/60{background-color:rgb(23 37 84 / 0.6)}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-nsdc-celeste{--tw-bg-opacity:1;background-color:rgb(2 132 199 / var(--tw-bg-opacity, 1))}.bg-sky-100{--tw-bg-opacity:1;background-color:rgb(224 242 254 / var(--tw-bg-opacity, 1))}.bg-white\/20{background-color:rgb(255 255 255 / 0.2)}.bg-sky-50\/50{background-color:rgb(240 249 255 / 0.5)}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-900\/60{background-color:rgb(15 23 42 / 0.6)}.bg-slate-900\/70{background-color:rgb(15 23 42 / 0.7)}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-nsdc-azul{--tw-gradient-from:#1e3a8a var(--tw-gradient-from-position);--tw-gradient-to:rgb(30 58 138 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-nsdc-azulMid{--tw-gradient-to:rgb(29 78 216 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #1d4ed8 var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-nsdc-celeste{--tw-gradient-to:rgb(2 132 199 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #0284c7 var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-nsdc-azul{--tw-gradient-to:#1e3a8a var(--tw-gradient-to-position)}.to-nsdc-celeste{--tw-gradient-to:#0284c7 var(--tw-gradient-to-position)}.p-0\.5{padding:0.125rem}.p-1{padding:0.25rem}.p-3{padding:0.75rem}.p-4{padding:1rem}.p-1\.5{padding:0.375rem}.p-5{padding:1.25rem}.px-1{padding-left:0.25rem;padding-right:0.25rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-4{padding-top:1rem;padding-bottom:1rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-3\.5{padding-top:0.875rem;padding-bottom:0.875rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.py-8{padding-top:2rem;padding-bottom:2rem}.pb-3{padding-bottom:0.75rem}.pb-2{padding-bottom:0.5rem}.pt-1\.5{padding-top:0.375rem}.pt-4{padding-top:1rem}.pt-5{padding-top:1.25rem}.pl-3\.5{padding-left:0.875rem}.pl-8{padding-left:2rem}.pr-10{padding-right:2.5rem}.pr-3{padding-right:0.75rem}.pt-1{padding-top:0.25rem}.pt-3{padding-top:0.75rem}.text-left{text-align:left}.text-center{text-align:center}.font-sans{font-family:Inter, sans-serif}.font-serif{font-family:Merriweather, serif}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.text-\[11px\]{font-size:11px}.text-\[8px\]{font-size:8px}.text-\[9px\]{font-size:9px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-\[10px\]{font-size:10px}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-2xl{font-size:1.5rem;line-height:2rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.font-normal{font-weight:400}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-none{line-height:1}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.tracking-widest{letter-spacing:0.1em}.tracking-wide{letter-spacing:0.025em}.text-blue-950{--tw-text-opacity:1;color:rgb(23 37 84 / var(--tw-text-opacity, 1))}.text-nsdc-azul{--tw-text-opacity:1;color:rgb(30 58 138 / var(--tw-text-opacity, 1))}.text-nsdc-celeste{--tw-text-opacity:1;color:rgb(2 132 199 / var(--tw-text-opacity, 1))}.text-sky-100{--tw-text-opacity:1;color:rgb(224 242 254 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-sky-200{--tw-text-opacity:1;color:rgb(186 230 253 / var(--tw-text-opacity, 1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.shadow{--tw-shadow:0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sky-500\/20{--tw-shadow-color:rgb(14 165 233 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.drop-shadow-sm{--tw-drop-shadow:drop-shadow(0 1px 1px rgb(0 0 0 / 0.05));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.hover\:border-nsdc-azul:hover{--tw-border-opacity:1;border-color:rgb(30 58 138 / var(--tw-border-opacity, 1))}.hover\:bg-blue-800:hover{--tw-bg-opacity:1;background-color:rgb(30 64 175 / var(--tw-bg-opacity, 1))}.hover\:bg-sky-300:hover{--tw-bg-opacity:1;background-color:rgb(125 211 252 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:bg-sky-100\/60:hover{background-color:rgb(224 242 254 / 0.6)}.hover\:bg-blue-950:hover{--tw-bg-opacity:1;background-color:rgb(23 37 84 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-700:hover{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.hover\:bg-red-50:hover{--tw-bg-opacity:1;background-color:rgb(254 242 242 / var(--tw-bg-opacity, 1))}.hover\:bg-sky-200:hover{--tw-bg-opacity:1;background-color:rgb(186 230 253 / var(--tw-bg-opacity, 1))}.hover\:bg-sky-50:hover{--tw-bg-opacity:1;background-color:rgb(240 249 255 / var(--tw-bg-opacity, 1))}.hover\:bg-sky-600:hover{--tw-bg-opacity:1;background-color:rgb(2 132 199 / var(--tw-bg-opacity, 1))}.hover\:from-blue-900:hover{--tw-gradient-from:#1e3a8a var(--tw-gradient-from-position);--tw-gradient-to:rgb(30 58 138 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-sky-600:hover{--tw-gradient-to:#0284c7 var(--tw-gradient-to-position)}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.hover\:text-nsdc-azul:hover{--tw-text-opacity:1;color:rgb(30 58 138 / var(--tw-text-opacity, 1))}.hover\:text-red-600:hover{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.focus\:border-nsdc-celeste:focus{--tw-border-opacity:1;border-color:rgb(2 132 199 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-nsdc-celeste:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(2 132 199 / var(--tw-ring-opacity, 1))}.active\:scale-\[0\.99\]:active{--tw-scale-x:0.99;--tw-scale-y:0.99;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.disabled\:bg-slate-100:disabled{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.disabled\:text-slate-400:disabled{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}@media (min-width: 640px){.sm\:left-auto{left:auto}.sm\:order-2{order:2}.sm\:order-3{order:3}.sm\:col-span-3{grid-column:span 3 / span 3}.sm\:col-span-4{grid-column:span 4 / span 4}.sm\:col-span-5{grid-column:span 5 / span 5}.sm\:col-span-1{grid-column:span 1 / span 1}.sm\:col-span-2{grid-column:span 2 / span 2}.sm\:flex{display:flex}.sm\:h-24{height:6rem}.sm\:w-20{width:5rem}.sm\:w-auto{width:auto}.sm\:flex-initial{flex:0 1 auto}.sm\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.sm\:grid-cols-5{grid-template-columns:repeat(5, minmax(0, 1fr))}.sm\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:flex-nowrap{flex-wrap:nowrap}.sm\:items-center{align-items:center}.sm\:gap-6{gap:1.5rem}.sm\:p-4{padding:1rem}.sm\:p-8{padding:2rem}.sm\:p-5{padding:1.25rem}.sm\:p-6{padding:1.5rem}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:py-6{padding-top:1.5rem;padding-bottom:1.5rem}.sm\:px-4{padding-left:1rem;padding-right:1rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}.sm\:text-xs{font-size:0.75rem;line-height:1rem}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}}@media (min-width: 768px){.md\:flex-row{flex-direction:row}.md\:items-center{align-items:center}}@media (min-width: 1024px){.lg\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}}</style><link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Incidencias%20IEI%2031%20%5C%22Nuestra%20Se%C3%B1ora%20del%20Carmen%5C%22%22%2C%22short_name%22%3A%22Incidencias%20NSDC%22%2C%22description%22%3A%22Registro%20y%20Central%20de%20Incidencias%20-%20IEI%20N%C2%B0%2031%20Nuestra%20Se%C3%B1ora%20del%20Carmen%2C%20Yanacancha%20-%20Cerro%20de%20Pasco%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f8fafc%22%2C%22theme_color%22%3A%22%231e3a8a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Bcharset%3Dutf-8%2C%253Csvg%2520xmlns%253D%2522http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2522%2520viewBox%253D%25220%25200%2520180%2520180%2522%253E%253Crect%2520width%253D%2522180%2522%2520height%253D%2522180%2522%2520rx%253D%252236%2522%2520fill%253D%2522%25231e3a8a%2522%252F%253E%253Cpath%2520d%253D%2522M32%252C20%2520Q90%252C10%2520148%252C20%2520L154%252C95%2520Q148%252C152%252090%252C170%2520Q32%252C152%252026%252C95%2520Z%2522%2520fill%253D%2522%2523e11d48%2522%2520stroke%253D%2522%2523f59e0b%2522%2520stroke-width%253D%25226%2522%252F%253E%253Cpath%2520d%253D%2522M68%252C16%2520L112%252C16%2520L112%252C163%2520Q90%252C170%252068%252C163%2520Z%2522%2520fill%253D%2522%2523ffffff%2522%252F%253E%253Ctext%2520x%253D%252290%2522%2520y%253D%252275%2522%2520font-family%253D%2522Arial%252Csans-serif%2522%2520font-size%253D%252226%2522%2520font-weight%253D%2522900%2522%2520fill%253D%2522%25231e293b%2522%2520text-anchor%253D%2522middle%2522%253E31%253C%252Ftext%253E%253Ctext%2520x%253D%252290%2522%2520y%253D%2522148%2522%2520font-family%253D%2522Arial%252Csans-serif%2522%2520font-size%253D%252214%2522%2520font-weight%253D%2522900%2522%2520fill%253D%2522%25231e293b%2522%2520text-anchor%253D%2522middle%2522%253ENSDC%253C%252Ftext%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%2C%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Bcharset%3Dutf-8%2C%253Csvg%2520xmlns%253D%2522http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2522%2520viewBox%253D%25220%25200%2520180%2520180%2522%253E%253Crect%2520width%253D%2522180%2522%2520height%253D%2522180%2522%2520rx%253D%252236%2522%2520fill%253D%2522%25231e3a8a%2522%252F%253E%253Cpath%2520d%253D%2522M32%252C20%2520Q90%252C10%2520148%252C20%2520L154%252C95%2520Q148%252C152%252090%252C170%2520Q32%252C152%252026%252C95%2520Z%2522%2520fill%253D%2522%2523e11d48%2522%2520stroke%253D%2522%2523f59e0b%2522%2520stroke-width%253D%25226%2522%252F%253E%253Cpath%2520d%253D%2522M68%252C16%2520L112%252C16%2520L112%252C163%2520Q90%252C170%252068%252C163%2520Z%2522%2520fill%253D%2522%2523ffffff%2522%252F%253E%253Ctext%2520x%253D%252290%2522%2520y%253D%252275%2522%2520font-family%253D%2522Arial%252Csans-serif%2522%2520font-size%253D%252226%2522%2520font-weight%253D%2522900%2522%2520fill%253D%2522%25231e293b%2522%2520text-anchor%253D%2522middle%2522%253E31%253C%252Ftext%253E%253Ctext%2520x%253D%252290%2522%2520y%253D%2522148%2522%2520font-family%253D%2522Arial%252Csans-serif%2522%2520font-size%253D%252214%2522%2520font-weight%253D%2522900%2522%2520fill%253D%2522%25231e293b%2522%2520text-anchor%253D%2522middle%2522%253ENSDC%253C%252Ftext%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D"></head>
-<body class="min-h-screen flex flex-col font-sans antialiased">
-
-  <!-- =======================================================================
-       BARRA DE NAVEGACIÓN SUPERIOR (NO SE IMPRIME)
-       ======================================================================= -->
-  <header id="app-navbar" class="no-print sticky top-0 z-40 bg-gradient-to-r from-nsdc-azul via-nsdc-azulMid to-nsdc-celeste text-white shadow-lg">
-    <div class="max-w-6xl mx-auto px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-2">
-      <!-- Identidad corta -->
-      <div class="flex items-center gap-2.5">
-        <div id="nav-logo-container" class="w-10 h-10 bg-white rounded-xl p-0.5 shadow-md flex items-center justify-center shrink-0">
-          <!-- SVG Mini Insignia CNI 31 -->
-          <svg viewBox="0 0 120 130" class="w-full h-full">
-            <path d="M15,10 Q60,2 105,10 L110,65 Q105,112 60,126 Q15,112 10,65 Z" fill="#dc2626" stroke="#d97706" stroke-width="5"></path>
-            <path d="M42,7 L78,7 L78,121 Q60,126 42,121 Z" fill="#ffffff"></path>
-            <text x="27" y="34" font-family="Arial Black, sans-serif" font-size="22" font-weight="900" fill="#111827" text-anchor="middle">C</text>
-            <text x="60" y="34" font-family="Arial Black, sans-serif" font-size="22" font-weight="900" fill="#111827" text-anchor="middle">N</text>
-            <text x="93" y="34" font-family="Arial Black, sans-serif" font-size="22" font-weight="900" fill="#111827" text-anchor="middle">I</text>
-            <text x="60" y="55" font-family="Arial Black, sans-serif" font-size="18" font-weight="900" fill="#111827" text-anchor="middle">31</text>
-            <ellipse cx="60" cy="83" rx="13" ry="18" fill="#78350f"></ellipse>
-            <circle cx="60" cy="70" r="5.5" fill="#fde68a"></circle>
-            <path d="M53,65 L60,59 L67,65 Z" fill="#f59e0b"></path>
-            <text x="60" y="114" font-family="Arial, sans-serif" font-size="8.5" font-weight="900" fill="#111827" text-anchor="middle">NSDC PASCO</text>
-          </svg>
-        </div>
-        <div>
-          <h1 class="font-extrabold text-sm sm:text-base leading-tight tracking-tight">IEI N° 31 "NSDC"</h1>
-          <p class="text-[11px] text-sky-100 font-medium">Yanacancha • Cerro de Pasco</p>
-        </div>
-      </div>
-
-      <!-- Pestañas Principales (Acceso directo sin contraseñas) -->
-      <nav class="flex items-center bg-blue-950/40 p-1 rounded-xl border border-white/15 order-3 sm:order-2 w-full sm:w-auto justify-center">
-        <button id="btn-tab-form" onclick="switchTab('form')" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-white text-nsdc-azul shadow">
-          <i class="fa-solid fa-file-pen text-nsdc-celeste"></i>
-          <span>Hoja de Incidencia</span>
-        </button>
-        <button id="btn-tab-central" onclick="switchTab('central')" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 text-sky-100 hover:text-white">
-          <i class="fa-solid fa-server"></i>
-          <span>Central de Reportes</span>
-          <span id="badge-total-reportes" class="bg-sky-400 text-blue-950 text-[11px] font-black px-2 py-0.5 rounded-full">0</span>
-        </button>
-      </nav>
-
-      <!-- Botón Instalar App PWA -->
-      <div class="flex items-center gap-2 order-2 sm:order-3">
-        <button id="btn-install-pwa" onclick="triggerInstallPWA()" class="bg-sky-400 hover:bg-sky-300 text-blue-950 font-extrabold text-xs px-3 py-2 rounded-xl shadow transition flex items-center gap-1.5">
-          <i class="fa-solid fa-download"></i>
-          <span>Instalar App</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- =======================================================================
-       CONTENIDO PRINCIPAL
-       ======================================================================= -->
-  <main class="flex-1 max-w-5xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6">
-
-    <!-- =====================================================================
-         PESTAÑA 1: HOJA OFICIAL DE INCIDENCIA (VISTA DOCENTE + IMPRESIÓN)
-         ===================================================================== -->
-    <section id="tab-formulario" class="space-y-4">
-
-      <!-- Barra de herramientas rápidas para el docente (No se imprime) -->
-      <div class="no-print bg-white border border-sky-200 rounded-2xl p-3 sm:p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-2.5">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <p class="text-xs sm:text-sm text-slate-600 font-medium">
-            Acceso directo activo • <strong class="text-nsdc-azul">Sin contraseñas</strong> • Funciona sin internet
-          </p>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <button type="button" onclick="nuevoFormularioLimpio()" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5">
-            <i class="fa-solid fa-file-circle-plus text-nsdc-celeste"></i> Nuevo en Blanco
-          </button>
-          <button type="button" onclick="prepararYImprimir()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-nsdc-azul hover:bg-blue-800 text-white shadow transition flex items-center gap-1.5">
-            <i class="fa-solid fa-print"></i> Imprimir / Guardar PDF
-          </button>
-        </div>
-      </div>
-
-      <!-- ===================================================================
-           DOCUMENTO OFICIAL REPLICADO: REPORTE DE INCIDENCIA A NIVEL DE AULA
-           =================================================================== -->
-      <form id="hoja-oficial" onsubmit="guardarReporteActual(event)" class="bg-white border-2 border-nsdc-azul rounded-2xl shadow-xl p-4 sm:p-8 relative overflow-hidden">
-        <!-- Franja decorativa superior celeste/azul institucional -->
-        <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-nsdc-azul via-nsdc-celeste to-nsdc-azul"></div>
-
-        <!-- ENCABEZADO OFICIAL CON INSIGNIAS -->
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pb-3 border-b-2 border-nsdc-azul">
-          <!-- Insignia Oficial CNI 31 "Nuestra Señora del Carmen" -->
-          <div class="flex items-center gap-3">
-            <svg viewBox="0 0 180 200" class="w-16 h-20 sm:w-20 sm:h-24 shrink-0 drop-shadow-sm" aria-label="Insignia CNI 31 Nuestra Señora del Carmen">
-              <defs>
-                <lineargradient id="goldBorder" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#f59e0b"></stop>
-                  <stop offset="50%" stop-color="#d97706"></stop>
-                  <stop offset="100%" stop-color="#b45309"></stop>
-                </lineargradient>
-                <path id="curveBottom" d="M 24,116 A 68,68 0 0,0 156,116"></path>
-              </defs>
-              <!-- Forma de escudo oficial -->
-              <path d="M22,16 Q90,4 158,16 L166,102 Q158,170 90,192 Q22,170 14,102 Z" fill="#e11d48" stroke="url(#goldBorder)" stroke-width="7"></path>
-              <!-- Franja blanca central -->
-              <path d="M64,11 L116,11 L116,184 Q90,192 64,184 Z" fill="#ffffff"></path>
-              <!-- Siglas C N I -->
-              <text x="41" y="52" font-family="Arial Black, Impact, sans-serif" font-size="33" font-weight="900" fill="#1e293b" text-anchor="middle">C</text>
-              <text x="90" y="52" font-family="Arial Black, Impact, sans-serif" font-size="33" font-weight="900" fill="#1e293b" text-anchor="middle">N</text>
-              <text x="139" y="52" font-family="Arial Black, Impact, sans-serif" font-size="33" font-weight="900" fill="#1e293b" text-anchor="middle">I</text>
-              <!-- Número 31 -->
-              <text x="90" y="83" font-family="Arial Black, sans-serif" font-size="27" font-weight="900" fill="#1e293b" text-anchor="middle">31</text>
-              <!-- Representación artística estilizada de la Virgen del Carmen -->
-              <g transform="translate(90, 122)">
-                <!-- Manto marrón carmelita -->
-                <path d="M-16,24 Q-18,-6 0,-18 Q18,-6 16,24 Z" fill="#6b3410"></path>
-                <!-- Capa crema -->
-                <path d="M-13,18 Q-12,-4 0,-14 Q12,-4 13,18 Z" fill="#fef3c7"></path>
-                <!-- Rostro y velo -->
-                <circle cx="0" cy="-16" r="7" fill="#fde68a"></circle>
-                <path d="M-7,-17 Q0,-25 7,-17" fill="none" stroke="#ffffff" stroke-width="2.5"></path>
-                <!-- Corona dorada -->
-                <polygon points="-5,-23 -3,-28 0,-25 3,-28 5,-23" fill="#f59e0b"></polygon>
-                <!-- Niño Jesús -->
-                <circle cx="8" cy="-4" r="4.5" fill="#fde68a"></circle>
-                <path d="M3,12 Q4,0 8,0 Q13,0 13,12 Z" fill="#86efac"></path>
-                <!-- Escapulario -->
-                <rect x="-11" y="6" width="4" height="5" fill="#78350f"></rect>
-                <rect x="9" y="8" width="4" height="5" fill="#78350f"></rect>
-              </g>
-              <!-- Texto curvo inferior -->
-              <text font-family="Arial Black, sans-serif" font-size="11.5" font-weight="900" fill="#111827" letter-spacing="0.5">
-                <textpath href="#curveBottom" startOffset="50%" text-anchor="middle">NUESTRA SRA DEL CARMEN</textpath>
-              </text>
-              <text x="90" y="182" font-family="Arial Black, sans-serif" font-size="13" font-weight="900" fill="#111827" text-anchor="middle">PASCO</text>
-            </svg>
-          </div>
-
-          <!-- Textos Oficiales Centrales -->
-          <div class="text-center flex-1 px-1">
-            <p class="text-[11px] sm:text-xs font-bold tracking-wider text-nsdc-celeste uppercase">Ministerio de Educación • UGEL Pasco</p>
-            <h2 class="font-serif font-black text-base sm:text-xl text-nsdc-azul leading-tight mt-0.5">
-              INSTITUCIÓN EDUCATIVA INTEGRADA Nº 31
-            </h2>
-            <h3 class="font-serif font-extrabold text-sm sm:text-lg text-nsdc-celeste leading-tight">
-              "NUESTRA SEÑORA DEL CARMEN"
-            </h3>
-            <p class="text-[11px] sm:text-xs font-semibold text-slate-700 mt-0.5">
-              R. S. N° 2023 - 29 de Febrero de 1958 • Yanacancha - Cerro de Pasco
-            </p>
-            <p class="text-[11px] sm:text-xs italic font-bold text-nsdc-azul mt-0.5">
-              "Más que un colegio, una familia" — Estudio - Trabajo - Disciplina
-            </p>
-          </div>
-
-          <!-- Emblema Regional Pasco / Ministerio equilibrado -->
-          <div class="hidden sm:flex flex-col items-center justify-center w-20 shrink-0 text-center">
-            <div class="w-14 h-14 rounded-full bg-nsdc-celesteSoft border-2 border-nsdc-celeste flex flex-col items-center justify-center text-nsdc-azul shadow-inner">
-              <i class="fa-solid fa-landmark text-lg"></i>
-              <span class="text-[8px] font-black leading-none mt-0.5">PASCO</span>
-            </div>
-            <span class="text-[9px] font-bold text-slate-500 mt-1 leading-tight">TOE Y CONVIVENCIA</span>
-          </div>
-        </div>
-
-        <!-- TÍTULO CENTRAL DEL FORMATO -->
-        <div class="my-3.5 bg-gradient-to-r from-nsdc-azul via-nsdc-celeste to-nsdc-azul text-white py-2 px-4 rounded-lg text-center shadow-sm">
-          <h4 class="font-extrabold text-sm sm:text-base tracking-widest uppercase">
-            REPORTE DE INCIDENCIA A NIVEL DE AULA
-          </h4>
-        </div>
-
-        <!-- BLOQUE DE DATOS GENERALES (FECHA, HORA, GRADO/SECCIÓN) -->
-        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-4 bg-sky-50/70 p-3 rounded-xl border border-sky-200 print-compact-gap">
-          <div class="sm:col-span-4 flex flex-col">
-            <label for="inp-fecha" class="text-xs font-extrabold text-nsdc-azul uppercase mb-1">
-              <i class="fa-regular fa-calendar text-nsdc-celeste mr-1 no-print"></i>FECHA:
-            </label>
-            <input type="date" id="inp-fecha" required="" class="w-full px-3 py-2 bg-white border border-sky-300 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-nsdc-celeste">
-          </div>
-
-          <div class="sm:col-span-3 flex flex-col">
-            <label for="inp-hora" class="text-xs font-extrabold text-nsdc-azul uppercase mb-1">
-              <i class="fa-regular fa-clock text-nsdc-celeste mr-1 no-print"></i>HORA:
-            </label>
-            <input type="time" id="inp-hora" required="" class="w-full px-3 py-2 bg-white border border-sky-300 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-nsdc-celeste">
-          </div>
-
-          <div class="sm:col-span-5 flex flex-col">
-            <label for="inp-grado" class="text-xs font-extrabold text-nsdc-azul uppercase mb-1">
-              <i class="fa-solid fa-chalkboard-user text-nsdc-celeste mr-1 no-print"></i>GRADO / SECCIÓN:
-            </label>
-            <div class="flex gap-1.5">
-              <select id="sel-grado-rapido" onchange="aplicarGradoRapido()" class="no-print px-2 py-2 bg-white border border-sky-300 rounded-lg text-xs font-bold text-nsdc-azul focus:outline-none focus:ring-2 focus:ring-nsdc-celeste">
-                <option value="">Elegir...</option>
-                <optgroup label="Secundaria">
-                  <option value="1° A">1° "A"</option>
-                  <option value="1° B">1° "B"</option>
-                  <option value="1° C">1° "C"</option>
-                  <option value="1° D">1° "D"</option>
-                  <option value="2° A">2° "A"</option>
-                  <option value="2° B">2° "B"</option>
-                  <option value="2° C">2° "C"</option>
-                  <option value="2° D">2° "D"</option>
-                  <option value="3° A">3° "A"</option>
-                  <option value="3° B">3° "B"</option>
-                  <option value="3° C">3° "C"</option>
-                  <option value="3° D">3° "D"</option>
-                  <option value="4° A">4° "A"</option>
-                  <option value="4° B">4° "B"</option>
-                  <option value="4° C">4° "C"</option>
-                  <option value="5° A">5° "A"</option>
-                  <option value="5° B">5° "B"</option>
-                  <option value="5° C">5° "C"</option>
-                </optgroup>
-                <optgroup label="Primaria / Inicial">
-                  <option value="1° Primaria">1° Primaria</option>
-                  <option value="2° Primaria">2° Primaria</option>
-                  <option value="3° Primaria">3° Primaria</option>
-                  <option value="4° Primaria">4° Primaria</option>
-                  <option value="5° Primaria">5° Primaria</option>
-                  <option value="6° Primaria">6° Primaria</option>
-                </optgroup>
-              </select>
-              <input type="text" id="inp-grado" placeholder="Ej: 3° &quot;B&quot;" required="" class="w-full px-3 py-2 bg-white border border-sky-300 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-nsdc-celeste">
-            </div>
-          </div>
-        </div>
-
-        <!-- CAMPO 1: DOCENTE QUE REPORTA -->
-        <div class="mb-4 print-compact-gap">
-          <label for="inp-docente" class="block text-xs sm:text-sm font-extrabold text-nsdc-azul mb-1">
-            1. Docente que reporta:
-          </label>
-          <input type="text" id="inp-docente" list="lista-docentes-guardados" required="" placeholder="Apellidos y Nombres del docente (se recordará automáticamente)" class="w-full px-3.5 py-2.5 bg-white border border-sky-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-nsdc-celeste">
-          <datalist id="lista-docentes-guardados"></datalist>
-        </div>
-
-        <!-- CAMPO 2: ESTUDIANTE(S) INVOLUCRADO(S) -->
-        <div class="mb-4 print-compact-gap">
-          <div class="flex items-center justify-between mb-1">
-            <label for="inp-estudiantes" class="block text-xs sm:text-sm font-extrabold text-nsdc-azul">
-              2. Estudiante(s) involucrado(s):
-            </label>
-            <button type="button" id="btn-buscar-padron" onclick="abrirModalPadron()" class="no-print hidden text-xs font-bold text-nsdc-celeste hover:text-nsdc-azul bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200 transition">
-              <i class="fa-solid fa-address-book mr-1"></i>Buscar en Padrón Cargado
-            </button>
-          </div>
-          <textarea id="inp-estudiantes" rows="2" required="" placeholder="Escriba los apellidos y nombres del estudiante o estudiantes involucrados..." class="w-full px-3.5 py-2 bg-white border border-sky-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-nsdc-celeste"></textarea>
-        </div>
-
-        <!-- CAMPO 3: LUGAR DEL INCIDENTE -->
-        <div class="mb-4 p-3 rounded-xl border border-sky-200 bg-slate-50/60 print-compact-gap">
-          <span class="block text-xs sm:text-sm font-extrabold text-nsdc-azul mb-2">
-            3. Lugar del incidente:
-          </span>
-          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 items-center">
-            <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-sky-100/60 transition">
-              <input type="checkbox" name="lugar" value="Aula" class="official-checkbox">
-              <span class="text-sm font-semibold text-slate-800">Aula</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-sky-100/60 transition">
-              <input type="checkbox" name="lugar" value="Recreo" class="official-checkbox">
-              <span class="text-sm font-semibold text-slate-800">Recreo</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-sky-100/60 transition">
-              <input type="checkbox" name="lugar" value="Pasillo" class="official-checkbox">
-              <span class="text-sm font-semibold text-slate-800">Pasillo</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-sky-100/60 transition">
-              <input type="checkbox" name="lugar" value="Baño" class="official-checkbox">
-              <span class="text-sm font-semibold text-slate-800">Baño</span>
-            </label>
-            <div class="col-span-2 sm:col-span-1 flex items-center gap-1.5">
-              <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
-                <input type="checkbox" id="chk-lugar-otro" name="lugar" value="Otro" onchange="toggleOtroInput('chk-lugar-otro', 'inp-lugar-otro')" class="official-checkbox">
-                <span class="text-sm font-semibold text-slate-800">Otro:</span>
-              </label>
-              <input type="text" id="inp-lugar-otro" placeholder="Especifique" disabled="" class="w-full min-w-[80px] px-2 py-1 text-xs bg-white border border-sky-300 rounded-md disabled:bg-slate-100 disabled:text-slate-400 focus:outline-none focus:border-nsdc-celeste">
-            </div>
-          </div>
-        </div>
-
-        <!-- CAMPO 4: DESCRIPCIÓN DE LA INCIDENCIA -->
-        <div class="mb-4 print-compact-gap">
-          <label for="inp-descripcion" class="block text-xs sm:text-sm font-extrabold text-nsdc-azul mb-1">
-            4. Descripción de la incidencia <span class="font-normal text-slate-600">(Explique de manera clara y objetiva lo ocurrido):</span>
-          </label>
-          <textarea id="inp-descripcion" rows="4" required="" placeholder="Detalle los hechos ocurridos de forma objetiva..." class="w-full lined-textarea bg-white border border-sky-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-nsdc-celeste"></textarea>
-        </div>
-
-        <!-- CAMPO 5: TIPO DE INCIDENCIA -->
-        <div class="mb-4 p-3 rounded-xl border border-sky-200 bg-slate-50/60 print-compact-gap">
-          <span class="block text-xs sm:text-sm font-extrabold text-nsdc-azul mb-2">
-            5. Tipo de incidencia:
-          </span>
-          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 items-center">
-            <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-sky-100/60 transition">
-              <input type="checkbox" name="tipo" value="Conductual" class="official-checkbox">
-              <span class="text-sm font-semibold text-slate-800">Conductual</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-sky-100/60 transition">
-              <input type="checkbox" name="tipo" value="Académica" class="official-checkbox">
-              <span class="text-sm font-semibold text-slate-800">Académica</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-sky-100/60 transition">
-              <input type="checkbox" name="tipo" value="Disciplina" class="official-checkbox">
-              <span class="text-sm font-semibold text-slate-800">Disciplina</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-sky-100/60 transition">
-              <input type="checkbox" name="tipo" value="Seguridad" class="official-checkbox">
-              <span class="text-sm font-semibold text-slate-800">Seguridad</span>
-            </label>
-            <div class="col-span-2 sm:col-span-1 flex items-center gap-1.5">
-              <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
-                <input type="checkbox" id="chk-tipo-otro" name="tipo" value="Otro" onchange="toggleOtroInput('chk-tipo-otro', 'inp-tipo-otro')" class="official-checkbox">
-                <span class="text-sm font-semibold text-slate-800">Otro:</span>
-              </label>
-              <input type="text" id="inp-tipo-otro" placeholder="Especifique" disabled="" class="w-full min-w-[80px] px-2 py-1 text-xs bg-white border border-sky-300 rounded-md disabled:bg-slate-100 disabled:text-slate-400 focus:outline-none focus:border-nsdc-celeste">
-            </div>
-          </div>
-        </div>
-
-        <!-- CAMPO 6: MEDIDAS TOMADAS -->
-        <div class="mb-4 p-3 rounded-xl border border-sky-200 bg-slate-50/60 print-compact-gap">
-          <span class="block text-xs sm:text-sm font-extrabold text-nsdc-azul mb-2">
-            6. Medidas tomadas:
-          </span>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-center">
-            <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-sky-100/60 transition">
-              <input type="checkbox" name="medidas" value="Llamado de atención" class="official-checkbox">
-              <span class="text-sm font-semibold text-slate-800">Llamado de atención</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-sky-100/60 transition">
-              <input type="checkbox" name="medidas" value="Orientación" class="official-checkbox">
-              <span class="text-sm font-semibold text-slate-800">Orientación</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-sky-100/60 transition">
-              <input type="checkbox" name="medidas" value="Comunicación" class="official-checkbox">
-              <span class="text-sm font-semibold text-slate-800">Comunicación</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-sky-100/60 transition">
-              <input type="checkbox" name="medidas" value="Comunicación a la familia" class="official-checkbox">
-              <span class="text-sm font-semibold text-slate-800">Comunicación a la familia</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-sky-100/60 transition">
-              <input type="checkbox" name="medidas" value="Referido a TOE" class="official-checkbox">
-              <span class="text-sm font-semibold text-slate-800">Referido a TOE</span>
-            </label>
-            <div class="flex items-center gap-1.5">
-              <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
-                <input type="checkbox" id="chk-medida-otro" name="medidas" value="Otro" onchange="toggleOtroInput('chk-medida-otro', 'inp-medida-otro')" class="official-checkbox">
-                <span class="text-sm font-semibold text-slate-800">Otro:</span>
-              </label>
-              <input type="text" id="inp-medida-otro" placeholder="Especifique" disabled="" class="w-full px-2 py-1 text-xs bg-white border border-sky-300 rounded-md disabled:bg-slate-100 disabled:text-slate-400 focus:outline-none focus:border-nsdc-celeste">
-            </div>
-          </div>
-        </div>
-
-        <!-- CAMPO 7: OBSERVACIONES -->
-        <div class="mb-4 print-compact-gap">
-          <label for="inp-observaciones" class="block text-xs sm:text-sm font-extrabold text-nsdc-azul mb-1">
-            7. Observaciones:
-          </label>
-          <textarea id="inp-observaciones" rows="2" placeholder="Acuerdos, compromisos o seguimiento adicional (opcional)..." class="w-full lined-textarea bg-white border border-sky-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-nsdc-celeste"></textarea>
-        </div>
-
-        <!-- BLOQUE DE FIRMAS DIGITALES OFICIALES (DOCENTE, ESTUDIANTE Y COORDINADOR TOE) -->
-        <div id="bloque-firmas" class="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 pt-5 pb-2 px-1 sm:px-4 mt-5 border-t border-dashed border-sky-200">
-          <!-- 1. Firma Docente de Área -->
-          <div class="text-center flex flex-col items-center">
-            <div class="w-full max-w-[230px]">
-              <div class="flex items-center justify-between mb-1 no-print">
-                <span class="text-[10px] font-bold text-nsdc-celeste uppercase"><i class="fa-solid fa-signature mr-1"></i>Firma Digital</span>
-                <button type="button" onclick="limpiarFirma('docente')" class="text-[10px] font-bold text-slate-500 hover:text-red-600 bg-slate-100 hover:bg-red-50 px-2 py-0.5 rounded transition">
-                  <i class="fa-solid fa-eraser mr-0.5"></i>Limpiar firma
-                </button>
-              </div>
-              <div class="signature-pad-wrapper">
-                <canvas id="canvas-firma-docente" class="signature-canvas" width="457" height="173"></canvas>
-                <span id="placeholder-firma-docente" class="signature-placeholder">Firme aquí con dedo o mouse</span>
-              </div>
-              <div class="border-t-2 border-nsdc-azul pt-1.5 mt-1">
-                <p class="text-xs font-extrabold text-nsdc-azul tracking-wide">DOCENTE DE ÁREA</p>
-                <p id="firma-nombre-docente" class="text-[11px] text-slate-600 mt-0.5 truncate"></p>
-              </div>
-            </div>
-          </div>
-
-          <!-- 2. Firma Estudiante(s) Involucrado(s) -->
-          <div class="text-center flex flex-col items-center">
-            <div class="w-full max-w-[230px]">
-              <div class="flex items-center justify-between mb-1 no-print">
-                <span class="text-[10px] font-bold text-nsdc-celeste uppercase"><i class="fa-solid fa-signature mr-1"></i>Firma Digital</span>
-                <button type="button" onclick="limpiarFirma('estudiante')" class="text-[10px] font-bold text-slate-500 hover:text-red-600 bg-slate-100 hover:bg-red-50 px-2 py-0.5 rounded transition">
-                  <i class="fa-solid fa-eraser mr-0.5"></i>Limpiar firma
-                </button>
-              </div>
-              <div class="signature-pad-wrapper">
-                <canvas id="canvas-firma-estudiante" class="signature-canvas" width="457" height="173"></canvas>
-                <span id="placeholder-firma-estudiante" class="signature-placeholder">Firma del estudiante aquí</span>
-              </div>
-              <div class="border-t-2 border-nsdc-azul pt-1.5 mt-1">
-                <p class="text-xs font-extrabold text-nsdc-azul tracking-wide">ESTUDIANTE INVOLUCRADO</p>
-                <p id="firma-nombre-estudiante" class="text-[11px] text-slate-600 mt-0.5 truncate">Compromiso / Conformidad</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- 3. Firma Coordinador TOE -->
-          <div class="text-center flex flex-col items-center">
-            <div class="w-full max-w-[230px]">
-              <div class="flex items-center justify-between mb-1 no-print">
-                <span class="text-[10px] font-bold text-nsdc-celeste uppercase"><i class="fa-solid fa-signature mr-1"></i>Firma Digital</span>
-                <button type="button" onclick="limpiarFirma('toe')" class="text-[10px] font-bold text-slate-500 hover:text-red-600 bg-slate-100 hover:bg-red-50 px-2 py-0.5 rounded transition">
-                  <i class="fa-solid fa-eraser mr-0.5"></i>Limpiar firma
-                </button>
-              </div>
-              <div class="signature-pad-wrapper">
-                <canvas id="canvas-firma-toe" class="signature-canvas" width="457" height="173"></canvas>
-                <span id="placeholder-firma-toe" class="signature-placeholder">Firma Coordinador TOE</span>
-              </div>
-              <div class="border-t-2 border-nsdc-azul pt-1.5 mt-1">
-                <p class="text-xs font-extrabold text-nsdc-azul tracking-wide">COORDINADOR TOE</p>
-                <p class="text-[11px] text-slate-500 mt-0.5">IEI N° 31 "NSDC"</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- BOTONES DE ACCIÓN DEL DOCENTE (NO SE IMPRIMEN) -->
-        <div id="action-bar-bottom" class="no-print mt-6 pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <button type="submit" class="flex-1 bg-gradient-to-r from-nsdc-azul to-nsdc-celeste hover:from-blue-900 hover:to-sky-600 text-white font-extrabold py-3.5 px-5 rounded-xl shadow-lg shadow-sky-500/20 transition transform active:scale-[0.99] flex items-center justify-center gap-2 text-sm sm:text-base">
-            <i class="fa-solid fa-floppy-disk text-lg"></i>
-            <span>Guardar Reporte en Historial</span>
-          </button>
-
-          <div class="flex flex-wrap sm:flex-nowrap gap-2">
-            <button type="button" onclick="prepararYImprimir()" class="flex-1 sm:flex-initial bg-sky-100 hover:bg-sky-200 text-nsdc-azul font-bold py-3.5 px-4 rounded-xl border border-sky-300 transition flex items-center justify-center gap-2 text-xs sm:text-sm">
-              <i class="fa-solid fa-file-pdf text-red-600 text-base"></i>
-              <span>PDF / Imprimir</span>
-            </button>
-
-            <button type="button" onclick="exportarReporteActualParaCentral()" class="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl shadow transition flex items-center justify-center gap-2 text-xs sm:text-sm">
-              <i class="fa-solid fa-paper-plane"></i>
-              <span>Enviar a Central (.json)</span>
-            </button>
-          </div>
-        </div>
-      </form>
-
-      <!-- HISTORIAL RÁPIDO DEL DOCENTE EN ESTE DISPOSITIVO (NO SE IMPRIME) -->
-      <div class="no-print bg-white border border-sky-200 rounded-2xl p-4 sm:p-5 shadow-sm">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div>
-            <h3 class="font-extrabold text-nsdc-azul text-sm sm:text-base flex items-center gap-2">
-              <i class="fa-solid fa-clock-rotate-left text-nsdc-celeste"></i>
-              Mis Reportes Guardados en este Equipo
-            </h3>
-            <p class="text-xs text-slate-500">Toque un reporte para volver a imprimirlo o enviarlo al administrador.</p>
-          </div>
-          <button type="button" onclick="exportarTodosMisReportes()" class="text-xs font-bold bg-nsdc-celesteSoft hover:bg-sky-200 text-nsdc-azul px-3 py-2 rounded-xl transition flex items-center gap-1.5">
-            <i class="fa-solid fa-file-export"></i> Exportar Todos Mis Reportes (.json)
-          </button>
-        </div>
-        <div id="lista-recientes-docente" class="divide-y divide-slate-100 max-h-64 overflow-y-auto"><p class="py-6 text-center text-xs text-slate-400">Aún no ha guardado reportes en este equipo.</p></div>
-      </div>
-    </section>
-
-    <!-- =====================================================================
-         PESTAÑA 2: CENTRAL DE REPORTES (ADMINISTRADOR PC - UNIFICADOR)
-         ===================================================================== -->
-    <section id="tab-central" class="hidden space-y-5 no-print">
-
-      <!-- Cabecera de la Central -->
-      <div class="bg-gradient-to-r from-nsdc-azul to-nsdc-celeste rounded-2xl p-5 text-white shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <span class="inline-block bg-white/20 text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-1">
-            Módulo Central PC • IEI 31 "NSDC"
-          </span>
-          <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight">Central Unificada de Incidencias</h2>
-          <p class="text-xs sm:text-sm text-sky-100 mt-0.5">
-            Consolide aquí los reportes enviados por los docentes desde sus celulares, tablets o PCs sin duplicados.
-          </p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <button onclick="exportarBaseUnificadaCSV()" class="bg-white text-nsdc-azul hover:bg-sky-50 font-extrabold text-xs px-3.5 py-2.5 rounded-xl shadow transition flex items-center gap-1.5">
-            <i class="fa-solid fa-file-excel text-emerald-600 text-sm"></i> Exportar Excel (.csv)
-          </button>
-          <button onclick="exportarRespaldoCompletoJSON()" class="bg-blue-950/60 hover:bg-blue-950 text-white border border-white/20 font-bold text-xs px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5">
-            <i class="fa-solid fa-database"></i> Respaldo Total (.json)
-          </button>
-        </div>
-      </div>
-
-      <!-- ZONA DE CARGA Y UNIFICACIÓN DE BASE DE DATOS (DRAG & DROP) -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <!-- 1. Subir / Unificar Reportes de Docentes -->
-        <div id="drop-zone-reportes" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDropReportes(event)" class="bg-white border-2 border-dashed border-nsdc-celeste hover:border-nsdc-azul rounded-2xl p-5 text-center transition flex flex-col items-center justify-center">
-          <div class="w-12 h-12 rounded-2xl bg-nsdc-celesteSoft text-nsdc-celeste flex items-center justify-center text-xl mb-2">
-            <i class="fa-solid fa-cloud-arrow-up"></i>
-          </div>
-          <h3 class="font-extrabold text-nsdc-azul text-sm sm:text-base">Subir y Unificar Reportes de Docentes</h3>
-          <p class="text-xs text-slate-500 mt-1 max-w-md">
-            Arrastre aquí uno o varios archivos <strong>.json</strong> o <strong>.csv</strong> enviados por los docentes (por WhatsApp, USB o correo). El sistema los unifica automáticamente evitando duplicados.
-          </p>
-          <label class="mt-3 cursor-pointer bg-nsdc-celeste hover:bg-sky-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow transition inline-flex items-center gap-2">
-            <i class="fa-solid fa-folder-open"></i>
-            <span>Seleccionar Archivos (.json / .csv)</span>
-            <input type="file" id="input-subir-reportes" accept=".json,.csv" multiple="" onchange="procesarArchivosSubidos(this.files)" class="hidden">
-          </label>
-        </div>
-
-        <!-- 2. Cargar Padrón / Base de Datos Externa de Estudiantes (Opcional) -->
-        <div class="bg-white border border-sky-200 rounded-2xl p-5 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between">
-              <h3 class="font-extrabold text-nsdc-azul text-sm sm:text-base flex items-center gap-2">
-                <i class="fa-solid fa-users-rectangle text-nsdc-celeste"></i>
-                Base de Datos de Alumnos (Padrón Opcional)
-              </h3>
-              <span id="badge-padron-count" class="text-[11px] font-bold bg-sky-100 text-nsdc-azul px-2.5 py-0.5 rounded-full">0 alumnos</span>
-            </div>
-            <p class="text-xs text-slate-500 mt-1">
-              Suba una lista de estudiantes en formato <strong>.csv</strong> (columnas: <code>Nombre, Grado</code>) o <strong>.json</strong> para que los docentes puedan seleccionarlos con un clic al reportar.
-            </p>
-          </div>
-          <div class="mt-3 flex flex-wrap items-center gap-2">
-            <label class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-nsdc-azul font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-300 transition inline-flex items-center gap-1.5">
-              <i class="fa-solid fa-upload"></i>
-              <span>Subir Padrón (.csv / .json)</span>
-              <input type="file" accept=".csv,.json" onchange="cargarPadronEstudiantes(this.files[0])" class="hidden">
-            </label>
-            <button type="button" onclick="descargarPlantillaPadronCSV()" class="text-xs font-semibold text-nsdc-celeste hover:underline px-2 py-1">
-              Descargar plantilla CSV
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- PANEL PLEGABLE: SINCRONIZACIÓN EN LA NUBE (FIREBASE / GOOGLE SHEETS) -->
-      <details class="bg-white border border-sky-200 rounded-2xl p-4 shadow-sm">
-        <summary class="cursor-pointer font-extrabold text-xs sm:text-sm text-nsdc-azul flex items-center justify-between">
-          <span class="flex items-center gap-2">
-            <i class="fa-solid fa-cloud text-nsdc-celeste"></i>
-            Conectar Base de Datos en la Nube en Tiempo Real (Opcional - Firebase / Google Sheets)
-          </span>
-          <span id="cloud-status-pill" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">Modo Local Activo</span>
-        </summary>
-        <div class="mt-3 pt-3 border-t border-slate-100 space-y-3 text-xs text-slate-600">
-          <p>
-            Si el colegio cuenta con conexión a internet y desea que los reportes de los celulares lleguen automáticamente sin enviar archivos, pegue aquí su URL de <strong>Firebase Realtime Database</strong> (terminada en <code>.json</code>) o su <strong>Webhook de Google Apps Script</strong>:
-          </p>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input type="url" id="inp-cloud-url" placeholder="https://tu-proyecto.firebaseio.com/incidencias.json" class="flex-1 px-3 py-2 border border-sky-300 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-nsdc-celeste">
-            <button type="button" onclick="guardarConfigNube()" class="bg-nsdc-azul hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-xl transition">
-              Guardar Enlace
-            </button>
-            <button type="button" onclick="sincronizarDesdeNube()" class="bg-nsdc-celeste hover:bg-sky-600 text-white font-bold px-4 py-2 rounded-xl transition flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-rotate"></i> Sincronizar Ahora
-            </button>
-          </div>
-        </div>
-      </details>
-
-      <!-- TARJETAS DE RESUMEN ESTADÍSTICO -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div class="bg-white p-4 rounded-2xl border border-sky-200 shadow-sm">
-          <p class="text-[11px] font-bold text-slate-500 uppercase">Total Reportes</p>
-          <p id="stat-total" class="text-2xl font-black text-nsdc-azul mt-1">0</p>
-        </div>
-        <div class="bg-white p-4 rounded-2xl border border-sky-200 shadow-sm">
-          <p class="text-[11px] font-bold text-slate-500 uppercase">Conductual / Disciplina</p>
-          <p id="stat-conducta" class="text-2xl font-black text-nsdc-celeste mt-1">0</p>
-        </div>
-        <div class="bg-white p-4 rounded-2xl border border-sky-200 shadow-sm">
-          <p class="text-[11px] font-bold text-slate-500 uppercase">Derivados a TOE</p>
-          <p id="stat-toe" class="text-2xl font-black text-amber-600 mt-1">0</p>
-        </div>
-        <div class="bg-white p-4 rounded-2xl border border-sky-200 shadow-sm">
-          <p class="text-[11px] font-bold text-slate-500 uppercase">Este Mes</p>
-          <p id="stat-mes" class="text-2xl font-black text-emerald-600 mt-1">0</p>
-        </div>
-      </div>
-
-      <!-- FILTROS Y TABLA CONSOLIDADA -->
-      <div class="bg-white border border-sky-200 rounded-2xl shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-slate-100 bg-sky-50/50 grid grid-cols-1 sm:grid-cols-4 gap-2.5">
-          <div class="sm:col-span-2 relative">
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
-            <input type="text" id="filtro-texto" oninput="renderizarTablaCentral()" placeholder="Buscar por estudiante, docente o descripción..." class="w-full pl-8 pr-3 py-2 bg-white border border-sky-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-nsdc-celeste">
-          </div>
-          <select id="filtro-tipo" onchange="renderizarTablaCentral()" class="px-3 py-2 bg-white border border-sky-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-nsdc-celeste">
-            <option value="">Todos los tipos</option>
-            <option value="Conductual">Conductual</option>
-            <option value="Académica">Académica</option>
-            <option value="Disciplina">Disciplina</option>
-            <option value="Seguridad">Seguridad</option>
-          </select>
-          <input type="date" id="filtro-fecha" onchange="renderizarTablaCentral()" class="px-3 py-2 bg-white border border-sky-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-nsdc-celeste">
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-nsdc-azul text-white text-[11px] uppercase tracking-wider">
-                <th class="py-3 px-3.5">Fecha / Hora</th>
-                <th class="py-3 px-3.5">Grado/Sec.</th>
-                <th class="py-3 px-3.5">Estudiante(s)</th>
-                <th class="py-3 px-3.5">Tipo / Lugar</th>
-                <th class="py-3 px-3.5">Docente</th>
-                <th class="py-3 px-3.5 text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tbody-central" class="divide-y divide-slate-100 text-xs">
-          <tr>
-            <td colspan="6" class="py-8 text-center text-slate-400 text-xs">
-              <i class="fa-solid fa-folder-open text-2xl text-sky-200 block mb-2"></i>
-              No hay reportes que coincidan con la búsqueda actual.
-            </td>
-          </tr>
-        </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- =======================================================================
-       MODAL: GUÍA DE INSTALACIÓN PWA (CELULAR, TABLET Y PC WINDOWS)
-       ======================================================================= -->
-  <div id="modal-install" class="no-print hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-sky-200 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="font-extrabold text-nsdc-azul text-base flex items-center gap-2">
-          <i class="fa-solid fa-mobile-screen-button text-nsdc-celeste"></i>
-          Instalar Aplicativo IEI 31 "NSDC"
-        </h3>
-        <button onclick="cerrarModal('modal-install')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <div class="space-y-3 text-xs text-slate-600">
-        <div class="p-3 rounded-xl bg-sky-50 border border-sky-200">
-          <p class="font-extrabold text-nsdc-azul mb-1"><i class="fa-brands fa-android text-emerald-600 mr-1"></i> En Celular Android / Tablet (Chrome):</p>
-          <p>Toque los <strong>3 puntitos (⋮)</strong> arriba a la derecha y seleccione <strong>"Instalar aplicación"</strong> o <strong>"Agregar a la pantalla principal"</strong>.</p>
-        </div>
-        <div class="p-3 rounded-xl bg-sky-50 border border-sky-200">
-          <p class="font-extrabold text-nsdc-azul mb-1"><i class="fa-brands fa-apple text-slate-800 mr-1"></i> En iPhone / iPad (Safari):</p>
-          <p>Toque el botón <strong>Compartir (<i class="fa-solid fa-arrow-up-from-bracket"></i>)</strong> abajo y elija <strong>"Agregar a inicio"</strong>.</p>
-        </div>
-        <div class="p-3 rounded-xl bg-sky-50 border border-sky-200">
-          <p class="font-extrabold text-nsdc-azul mb-1"><i class="fa-brands fa-windows text-blue-600 mr-1"></i> En PC Windows / Laptop (Chrome o Edge):</p>
-          <p>Haga clic en el ícono de <strong>Instalar (<i class="fa-solid fa-desktop"></i>)</strong> en la barra de direcciones arriba a la derecha para tenerlo como programa independiente en su escritorio.</p>
-        </div>
-      </div>
-
-      <button onclick="cerrarModal('modal-install')" class="w-full py-2.5 bg-nsdc-azul text-white font-bold rounded-xl text-xs hover:bg-blue-800 transition">
-        Entendido
-      </button>
-    </div>
-  </div>
-
-  <!-- =======================================================================
-       MODAL: SELECCIÓN RÁPIDA DE ALUMNOS DESDE EL PADRÓN CARGADO
-       ======================================================================= -->
-  <div id="modal-quick-students" class="no-print hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-sky-200 space-y-3">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-        <h3 class="font-extrabold text-nsdc-azul text-sm">Seleccionar Estudiante del Padrón</h3>
-        <button onclick="cerrarModal('modal-quick-students')" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <input type="text" id="inp-buscar-alumno-modal" oninput="filtrarModalPadron()" placeholder="Escriba apellido o nombre..." class="w-full px-3 py-2 border border-sky-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-nsdc-celeste">
-      <div id="lista-alumnos-modal" class="max-h-60 overflow-y-auto divide-y divide-slate-100 text-xs"></div>
-    </div>
-  </div>
-
-  <!-- =======================================================================
-       MODAL DE ACCESO RESTRINGIDO PARA COORDINADOR TOE (CONTRASEÑA: FRARAVA)
-       ======================================================================= -->
-  <div id="modal-toe-auth" class="no-print hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-5 sm:p-6 shadow-2xl border-2 border-nsdc-azul space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-nsdc-celesteSoft text-nsdc-azul flex items-center justify-center">
-            <i class="fa-solid fa-shield-halved text-lg"></i>
-          </div>
-          <div>
-            <h3 class="font-extrabold text-nsdc-azul text-sm leading-tight">Acceso Exclusivo TOE</h3>
-            <p class="text-[11px] text-slate-500">Central de Reportes • IEI 31 "NSDC"</p>
-          </div>
-        </div>
-        <button type="button" onclick="cerrarModal('modal-toe-auth')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <form onsubmit="verificarClaveTOE(event)" class="space-y-3">
-        <div>
-          <label for="inp-clave-toe" class="block text-xs font-bold text-slate-700 mb-1">
-            Ingrese la clave de Coordinación TOE:
-          </label>
-          <div class="relative">
-            <input type="password" id="inp-clave-toe" autocomplete="off" required="" placeholder="Contraseña TOE..." class="w-full pl-3.5 pr-10 py-2.5 bg-slate-50 border border-sky-300 rounded-xl text-sm font-bold tracking-widest uppercase text-nsdc-azul focus:outline-none focus:ring-2 focus:ring-nsdc-celeste">
-            <button type="button" onclick="toggleVisibilidadClaveTOE()" class="absolute right-3 top-2.5 text-slate-400 hover:text-nsdc-azul">
-              <i id="icon-eye-toe" class="fa-solid fa-eye text-sm"></i>
-            </button>
-          </div>
-          <p id="msg-error-toe" class="hidden text-[11px] font-bold text-red-600 mt-1.5">
-            <i class="fa-solid fa-circle-exclamation mr-1"></i>Clave incorrecta. Acceso solo para TOE.
-          </p>
-        </div>
-
-        <div class="flex gap-2 pt-1">
-          <button type="button" onclick="cerrarModal('modal-toe-auth')" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">
-            Cancelar
-          </button>
-          <button type="submit" class="flex-1 py-2.5 bg-gradient-to-r from-nsdc-azul to-nsdc-celeste hover:from-blue-900 hover:to-sky-600 text-white font-extrabold rounded-xl text-xs shadow transition">
-            Ingresar a Central
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- CONTENEDOR DE NOTIFICACIONES TOAST -->
-  <div id="toast-container" class="no-print fixed bottom-4 right-4 left-4 sm:left-auto z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-  <!-- =======================================================================
-       LÓGICA JAVASCRIPT Y CONFIGURACIÓN PWA OFFLINE-FIRST
-       ======================================================================= -->
-  <script>
-    // Claves de almacenamiento local
-    const STORAGE_KEYS = {
-      REPORTES: 'nsdc_incidencias_db_v1',
-      DOCENTES: 'nsdc_docentes_historial_v1',
-      PADRON: 'nsdc_padron_estudiantes_v1',
-      CLOUD_URL: 'nsdc_cloud_webhook_v1'
-    };
-
-    let reportesDB = [];
-    let padronEstudiantes = [];
-    let deferredInstallPrompt = null;
-    let toeAutorizadoEnSesion = false;
-    const CLAVE_CENTRAL_TOE = 'FRARAVA';
-
-    // Gestor de paneles de Firma Digital (Canvas)
-    const signaturePads = {
-      docente: { canvas: null, ctx: null, drawing: false, hasStrokes: false, dataUrl: '' },
-      estudiante: { canvas: null, ctx: null, drawing: false, hasStrokes: false, dataUrl: '' },
-      toe: { canvas: null, ctx: null, drawing: false, hasStrokes: false, dataUrl: '' }
-    };
-
-    // Inicialización al cargar la página
-    window.addEventListener('DOMContentLoaded', () => {
-      cargarDatosLocales();
-      inicializarFechaHoraActual();
-      inicializarPanelesFirma();
-      actualizarDatalistDocentes();
-      actualizarUIReportes();
-      registrarPWA();
-    });
-
-    // =========================================================================
-    // MOTOR DE FIRMA DIGITAL TÁCTIL Y MOUSE (HTML5 CANVAS RESPONSIVE)
-    // =========================================================================
-    function inicializarPanelesFirma() {
-      ['docente', 'estudiante', 'toe'].forEach(key => {
-        const canvas = document.getElementById(`canvas-firma-${key}`);
-        if (!canvas) return;
-        const pad = signaturePads[key];
-        pad.canvas = canvas;
-        pad.ctx = canvas.getContext('2d');
-
-        redimensionarCanvasFirma(key, false);
-
-        const getCoords = (e) => {
-          const rect = canvas.getBoundingClientRect();
-          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-          const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-          return {
-            x: clientX - rect.left,
-            y: clientY - rect.top
-          };
-        };
-
-        const iniciarTrazo = (e) => {
-          e.preventDefault();
-          pad.drawing = true;
-          const { x, y } = getCoords(e);
-          pad.ctx.beginPath();
-          pad.ctx.moveTo(x, y);
-          // Punto inicial por si hacen un toque corto
-          pad.ctx.lineTo(x + 0.1, y + 0.1);
-          pad.ctx.stroke();
-          marcarFirmaActiva(key, true);
-        };
-
-        const moverTrazo = (e) => {
-          if (!pad.drawing) return;
-          e.preventDefault();
-          const { x, y } = getCoords(e);
-          pad.ctx.lineTo(x, y);
-          pad.ctx.stroke();
-        };
-
-        const finalizarTrazo = () => {
-          if (!pad.drawing) return;
-          pad.drawing = false;
-          pad.ctx.closePath();
-          pad.dataUrl = canvas.toDataURL('image/png');
-        };
-
-        // Eventos de Mouse (PC)
-        canvas.addEventListener('mousedown', iniciarTrazo);
-        canvas.addEventListener('mousemove', moverTrazo);
-        window.addEventListener('mouseup', finalizarTrazo);
-
-        // Eventos Táctiles (Celular / Tablet / Stylus)
-        canvas.addEventListener('touchstart', iniciarTrazo, { passive: false });
-        canvas.addEventListener('touchmove', moverTrazo, { passive: false });
-        canvas.addEventListener('touchend', finalizarTrazo);
-        canvas.addEventListener('touchcancel', finalizarTrazo);
-      });
-
-      // Ajustar resolución Retina / DPR al cambiar tamaño de pantalla sin borrar trazos
-      window.addEventListener('resize', () => {
-        ['docente', 'estudiante', 'toe'].forEach(key => redimensionarCanvasFirma(key, true));
-      });
-    }
-
-    function redimensionarCanvasFirma(key, preservarContenido = true) {
-      const pad = signaturePads[key];
-      if (!pad || !pad.canvas) return;
-      const canvas = pad.canvas;
-      const rect = canvas.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) return;
-
-      const dpr = Math.max(window.devicePixelRatio || 1, 2);
-      const prevData = preservarContenido && pad.hasStrokes ? (pad.dataUrl || canvas.toDataURL('image/png')) : null;
-
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
-
-      const ctx = pad.ctx;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.scale(dpr, dpr);
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.lineWidth = 2.1;
-      ctx.strokeStyle = '#0f172a'; // Tinta azul oscuro/negro bolígrafo oficial
-
-      if (prevData) {
-        cargarImagenEnCanvasFirma(key, prevData);
-      }
-    }
-
-    function marcarFirmaActiva(key, activa) {
-      const pad = signaturePads[key];
-      pad.hasStrokes = activa;
-      const ph = document.getElementById(`placeholder-firma-${key}`);
-      if (ph) {
-        ph.style.display = activa ? 'none' : 'flex';
-      }
-    }
-
-    function limpiarFirma(key) {
-      const pad = signaturePads[key];
-      if (!pad || !pad.canvas) return;
-      const rect = pad.canvas.getBoundingClientRect();
-      pad.ctx.clearRect(0, 0, rect.width || pad.canvas.width, rect.height || pad.canvas.height);
-      pad.dataUrl = '';
-      marcarFirmaActiva(key, false);
-    }
-
-    function limpiarTodasLasFirmas() {
-      ['docente', 'estudiante', 'toe'].forEach(key => limpiarFirma(key));
-    }
-
-    function obtenerFirmaBase64(key) {
-      const pad = signaturePads[key];
-      if (!pad || !pad.hasStrokes || !pad.canvas) return '';
-      return pad.canvas.toDataURL('image/png');
-    }
-
-    function cargarImagenEnCanvasFirma(key, dataUrl) {
-      const pad = signaturePads[key];
-      if (!pad || !pad.canvas) return;
-      limpiarFirma(key);
-      if (!dataUrl) return;
-
-      const img = new Image();
-      img.onload = () => {
-        const rect = pad.canvas.getBoundingClientRect();
-        const w = rect.width || 220;
-        const h = rect.height || 84;
-        pad.ctx.drawImage(img, 0, 0, w, h);
-        pad.dataUrl = dataUrl;
-        marcarFirmaActiva(key, true);
-      };
-      img.src = dataUrl;
-    }
-
-    // 1. Cargar datos desde localStorage de forma segura
-    function cargarDatosLocales() {
-      try {
-        const rawReportes = localStorage.getItem(STORAGE_KEYS.REPORTES);
-        reportesDB = rawReportes ? JSON.parse(rawReportes) : [];
-
-        const rawPadron = localStorage.getItem(STORAGE_KEYS.PADRON);
-        padronEstudiantes = rawPadron ? JSON.parse(rawPadron) : [];
-
-        const cloudUrl = localStorage.getItem(STORAGE_KEYS.CLOUD_URL) || '';
-        document.getElementById('inp-cloud-url').value = cloudUrl;
-        if (cloudUrl) {
-          const pill = document.getElementById('cloud-status-pill');
-          pill.textContent = 'Nube Configurada';
-          pill.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
-        }
-
-        actualizarEstadoPadron();
-      } catch (e) {
-        console.error('Error cargando almacenamiento local:', e);
-        reportesDB = [];
-      }
-    }
-
-    function guardarReportesEnStorage() {
-      try {
-        localStorage.setItem(STORAGE_KEYS.REPORTES, JSON.stringify(reportesDB));
-        actualizarUIReportes();
-      } catch (e) {
-        mostrarToast('Error al guardar en el dispositivo. Verifique espacio disponible.', 'error');
-      }
-    }
-
-    // 2. Fecha y Hora actuales automáticas
-    function inicializarFechaHoraActual() {
-      const ahora = new Date();
-      const yyyy = ahora.getFullYear();
-      const mm = String(ahora.getMonth() + 1).padStart(2, '0');
-      const dd = String(ahora.getDate()).padStart(2, '0');
-      const hh = String(ahora.getHours()).padStart(2, '0');
-      const min = String(ahora.getMinutes()).padStart(2, '0');
-
-      document.getElementById('inp-fecha').value = `${yyyy}-${mm}-${dd}`;
-      document.getElementById('inp-hora').value = `${hh}:${min}`;
-
-      // Recordar último docente usado en este celular/PC
-      const docentes = JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCENTES) || '[]');
-      if (docentes.length > 0 && !document.getElementById('inp-docente').value) {
-        document.getElementById('inp-docente').value = docentes[0];
-        document.getElementById('firma-nombre-docente').textContent = docentes[0];
-      }
-    }
-
-    // Actualizar nombre debajo de la línea de firma en tiempo real
-    document.getElementById('inp-docente').addEventListener('input', (e) => {
-      document.getElementById('firma-nombre-docente').textContent = e.target.value;
-    });
-
-    document.getElementById('inp-estudiantes').addEventListener('input', (e) => {
-      const val = e.target.value.trim();
-      document.getElementById('firma-nombre-estudiante').textContent = val || 'Compromiso / Conformidad';
-    });
-
-    function aplicarGradoRapido() {
-      const val = document.getElementById('sel-grado-rapido').value;
-      if (val) {
-        document.getElementById('inp-grado').value = val;
-      }
-    }
-
-    function toggleOtroInput(checkboxId, inputId) {
-      const chk = document.getElementById(checkboxId);
-      const inp = document.getElementById(inputId);
-      inp.disabled = !chk.checked;
-      if (chk.checked) {
-        inp.focus();
-      } else {
-        inp.value = '';
-      }
-    }
-
-    // 3. Recopilar datos del formulario en un objeto estructurado
-    function obtenerDatosFormulario() {
-      const lugares = Array.from(document.querySelectorAll('input[name="lugar"]:checked')).map(cb => {
-        if (cb.value === 'Otro') {
-          const esp = document.getElementById('inp-lugar-otro').value.trim();
-          return esp ? `Otro: ${esp}` : 'Otro';
-        }
-        return cb.value;
-      });
-
-      const tipos = Array.from(document.querySelectorAll('input[name="tipo"]:checked')).map(cb => {
-        if (cb.value === 'Otro') {
-          const esp = document.getElementById('inp-tipo-otro').value.trim();
-          return esp ? `Otro: ${esp}` : 'Otro';
-        }
-        return cb.value;
-      });
-
-      const medidas = Array.from(document.querySelectorAll('input[name="medidas"]:checked')).map(cb => {
-        if (cb.value === 'Otro') {
-          const esp = document.getElementById('inp-medida-otro').value.trim();
-          return esp ? `Otro: ${esp}` : 'Otro';
-        }
-        return cb.value;
-      });
-
-      const fecha = document.getElementById('inp-fecha').value;
-      const hora = document.getElementById('inp-hora').value;
-      const grado = document.getElementById('inp-grado').value.trim();
-      const docente = document.getElementById('inp-docente').value.trim();
-      const estudiantes = document.getElementById('inp-estudiantes').value.trim();
-      const descripcion = document.getElementById('inp-descripcion').value.trim();
-      const observaciones = document.getElementById('inp-observaciones').value.trim();
-
-      // Capturar firmas digitales en formato Base64
-      const firmas = {
-        docente: obtenerFirmaBase64('docente'),
-        estudiante: obtenerFirmaBase64('estudiante'),
-        toe: obtenerFirmaBase64('toe')
-      };
-
-      // Generar ID único determinista para evitar duplicados al fusionar en Central
-      const fingerprint = `${fecha}_${hora}_${grado}_${estudiantes.slice(0, 20)}_${docente.slice(0, 15)}`.replace(/\s+/g, '');
-
-      return {
-        id: 'NSDC-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase(),
-        fingerprint,
-        institucion: 'IEI 31 "Nuestra Señora del Carmen" - Yanacancha, Cerro de Pasco',
-        fecha,
-        hora,
-        grado,
-        docente,
-        estudiantes,
-        lugares,
-        lugarOtroTexto: document.getElementById('inp-lugar-otro').value.trim(),
-        descripcion,
-        tipos,
-        tipoOtroTexto: document.getElementById('inp-tipo-otro').value.trim(),
-        medidas,
-        medidaOtroTexto: document.getElementById('inp-medida-otro').value.trim(),
-        observaciones,
-        firmas,
-        creadoEn: new Date().toISOString()
-      };
-    }
-
-    // 4. Guardar reporte en el historial local (y en la nube si está configurada)
-    async function guardarReporteActual(e) {
-      if (e) e.preventDefault();
-      const reporte = obtenerDatosFormulario();
-
-      if (!reporte.docente || !reporte.estudiantes || !reporte.descripcion) {
-        mostrarToast('Complete los campos obligatorios (Docente, Estudiante y Descripción).', 'warning');
-        return;
-      }
-
-      // Guardar nombre del docente en el autocompletado
-      guardarDocenteEnHistorial(reporte.docente);
-
-      // Si ya existe el mismo reporte, actualizarlo (incluyendo nuevas firmas); si no, agregarlo
-      const idxExistente = reportesDB.findIndex(r => r.fingerprint === reporte.fingerprint && r.descripcion === reporte.descripcion);
-      if (idxExistente !== -1) {
-        reportesDB[idxExistente] = { ...reportesDB[idxExistente], ...reporte, id: reportesDB[idxExistente].id };
-      } else {
-        reportesDB.unshift(reporte);
-      }
-      guardarReportesEnStorage();
-
-      mostrarToast('Reporte y firmas digitales guardados correctamente.', 'success');
-
-      // Si hay nube configurada, intentar envío silencioso
-      const cloudUrl = localStorage.getItem(STORAGE_KEYS.CLOUD_URL);
-      if (cloudUrl && navigator.onLine) {
-        enviarReporteANube(cloudUrl, reporte);
-      }
-    }
-
-    function guardarDocenteEnHistorial(nombre) {
-      if (!nombre) return;
-      let docentes = JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCENTES) || '[]');
-      docentes = [nombre, ...docentes.filter(d => d.toLowerCase() !== nombre.toLowerCase())].slice(0, 15);
-      localStorage.setItem(STORAGE_KEYS.DOCENTES, JSON.stringify(docentes));
-      actualizarDatalistDocentes();
-    }
-
-    function actualizarDatalistDocentes() {
-      const docentes = JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCENTES) || '[]');
-      const dl = document.getElementById('lista-docentes-guardados');
-      dl.innerHTML = docentes.map(d => `<option value="${escapeHTML(d)}">`).join('');
-    }
-
-    // 5. Preparar e imprimir hoja oficial A4 / Guardar PDF
-    function prepararYImprimir() {
-      document.getElementById('firma-nombre-docente').textContent = document.getElementById('inp-docente').value.trim();
-      const estVal = document.getElementById('inp-estudiantes').value.trim();
-      document.getElementById('firma-nombre-estudiante').textContent = estVal || 'Compromiso / Conformidad';
-      window.print();
-    }
-
-    // 6. Exportar reporte actual para enviar a Central PC (.json + Web Share API móvil)
-    async function exportarReporteActualParaCentral() {
-      const reporte = obtenerDatosFormulario();
-      if (!reporte.estudiantes && !reporte.descripcion) {
-        mostrarToast('Llene primero los datos de la incidencia antes de exportar.', 'warning');
-        return;
-      }
-
-      // Guardarlo también localmente por seguridad
-      guardarDocenteEnHistorial(reporte.docente);
-      if (!reportesDB.some(r => r.fingerprint === reporte.fingerprint && r.descripcion === reporte.descripcion)) {
-        reportesDB.unshift(reporte);
-        guardarReportesEnStorage();
-      }
-
-      const paquete = {
-        sistema: 'IEI_31_NSDC_INCIDENCIAS',
-        exportadoEn: new Date().toISOString(),
-        reportes: [reporte]
-      };
-
-      const nombreArchivo = `Incidencia_NSDC_${reporte.grado.replace(/[^a-zA-Z0-9]/g, '') || 'Aula'}_${reporte.fecha}.json`;
-      const jsonStr = JSON.stringify(paquete, null, 2);
-      const blob = new Blob([jsonStr], { type: 'application/json' });
-
-      // Intentar compartir nativamente desde celular (WhatsApp, Bluetooth, Drive) si está soportado
-      if (navigator.canShare && navigator.share) {
-        const file = new File([blob], nombreArchivo, { type: 'application/json' });
-        if (navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({
-              title: 'Reporte de Incidencia - IEI 31 NSDC',
-              text: `Reporte de incidencia (${reporte.grado}) - ${reporte.estudiantes}`,
-              files: [file]
+            const q = query.toLowerCase();
+            const matches = padronEstudiantes.filter(e => e.nombres.toLowerCase().includes(q) || e.id.includes(q)).slice(0, 10);
+            
+            if(matches.length === 0) {
+                contenedor.innerHTML = '<div class="p-2 text-xs text-slate-500">No se encontró en el padrón (puede escribirlo manualmente).</div>';
+                contenedor.classList.remove('hidden');
+                return;
+            }
+
+            let html = '';
+            matches.forEach(m => {
+                html += `<div onclick="seleccionarAlumno('${m.nombres.replace(/'/g, "\\'")}', '${m.grado}', '${m.seccion}')" class="p-2 hover:bg-sky-50 cursor-pointer border-b border-slate-100 text-xs">
+                    <span class="font-bold text-azul-institucional">${m.nombres}</span> <span class="text-slate-500">(${m.grado}° "${m.seccion}")</span>
+                </div>`;
             });
-            mostrarToast('Archivo listo para enviar a la Central.', 'success');
-            return;
-          } catch (err) {
-            // Si el usuario cancela compartir, ofrecer descarga normal
-          }
+            contenedor.innerHTML = html;
+            contenedor.classList.remove('hidden');
         }
-      }
 
-      descargarBlob(blob, nombreArchivo);
-      mostrarToast('Archivo descargado. Envíelo por WhatsApp o USB a la PC Central.', 'success');
-    }
-
-    function exportarTodosMisReportes() {
-      if (reportesDB.length === 0) {
-        mostrarToast('Aún no hay reportes guardados en este dispositivo.', 'warning');
-        return;
-      }
-      const paquete = {
-        sistema: 'IEI_31_NSDC_INCIDENCIAS',
-        exportadoEn: new Date().toISOString(),
-        reportes: reportesDB
-      };
-      const blob = new Blob([JSON.stringify(paquete, null, 2)], { type: 'application/json' });
-      const fechaHoy = new Date().toISOString().slice(0, 10);
-      descargarBlob(blob, `Paquete_Reportes_NSDC_${fechaHoy}.json`);
-      mostrarToast(`Se exportaron ${reportesDB.length} reportes para la Central.`, 'success');
-    }
-
-    // 7. Limpiar formulario para nuevo registro (conservando nombre del docente)
-    function nuevoFormularioLimpio() {
-      const docenteActual = document.getElementById('inp-docente').value;
-      document.getElementById('hoja-oficial').reset();
-      limpiarTodasLasFirmas();
-      document.getElementById('inp-lugar-otro').disabled = true;
-      document.getElementById('inp-tipo-otro').disabled = true;
-      document.getElementById('inp-medida-otro').disabled = true;
-      document.getElementById('firma-nombre-estudiante').textContent = 'Compromiso / Conformidad';
-      inicializarFechaHoraActual();
-      if (docenteActual) {
-        document.getElementById('inp-docente').value = docenteActual;
-        document.getElementById('firma-nombre-docente').textContent = docenteActual;
-      }
-      mostrarToast('Hoja lista para un nuevo reporte.', 'info');
-    }
-
-    // 8. Cargar un reporte histórico al formulario para verlo o re-imprimirlo
-    function cargarReporteEnFormulario(id) {
-      const rep = reportesDB.find(r => r.id === id);
-      if (!rep) return;
-
-      switchTab('form');
-      document.getElementById('inp-fecha').value = rep.fecha || '';
-      document.getElementById('inp-hora').value = rep.hora || '';
-      document.getElementById('inp-grado').value = rep.grado || '';
-      document.getElementById('inp-docente').value = rep.docente || '';
-      document.getElementById('firma-nombre-docente').textContent = rep.docente || '';
-      document.getElementById('inp-estudiantes').value = rep.estudiantes || '';
-      document.getElementById('firma-nombre-estudiante').textContent = rep.estudiantes || 'Compromiso / Conformidad';
-      document.getElementById('inp-descripcion').value = rep.descripcion || '';
-      document.getElementById('inp-observaciones').value = rep.observaciones || '';
-
-      // Restaurar firmas digitales si existen en el registro
-      requestAnimationFrame(() => {
-        ['docente', 'estudiante', 'toe'].forEach(key => {
-          redimensionarCanvasFirma(key, false);
-          const firmaB64 = rep.firmas && rep.firmas[key] ? rep.firmas[key] : '';
-          cargarImagenEnCanvasFirma(key, firmaB64);
-        });
-      });
-
-      // Restaurar checkboxes
-      document.querySelectorAll('.official-checkbox').forEach(cb => cb.checked = false);
-      document.getElementById('inp-lugar-otro').disabled = true;
-      document.getElementById('inp-lugar-otro').value = '';
-      document.getElementById('inp-tipo-otro').disabled = true;
-      document.getElementById('inp-tipo-otro').value = '';
-      document.getElementById('inp-medida-otro').disabled = true;
-      document.getElementById('inp-medida-otro').value = '';
-
-      (rep.lugares || []).forEach(l => {
-        if (l.startsWith('Otro')) {
-          document.getElementById('chk-lugar-otro').checked = true;
-          document.getElementById('inp-lugar-otro').disabled = false;
-          document.getElementById('inp-lugar-otro').value = l.replace(/^Otro:\s*/, '');
-        } else {
-          const cb = document.querySelector(`input[name="lugar"][value="${l}"]`);
-          if (cb) cb.checked = true;
+        function seleccionarAlumno(nombre, grado, seccion) {
+            const txt = document.getElementById('input-estudiantes');
+            txt.value = txt.value ? txt.value + "\n" + nombre : nombre;
+            document.getElementById('input-grado').value = grado;
+            document.getElementById('input-seccion').value = seccion;
+            document.getElementById('sugerencias-alumnos').classList.add('hidden');
+            document.getElementById('input-estudiante-busqueda').value = '';
         }
-      });
 
-      (rep.tipos || []).forEach(t => {
-        if (t.startsWith('Otro')) {
-          document.getElementById('chk-tipo-otro').checked = true;
-          document.getElementById('inp-tipo-otro').disabled = false;
-          document.getElementById('inp-tipo-otro').value = t.replace(/^Otro:\s*/, '');
-        } else {
-          const cb = document.querySelector(`input[name="tipo"][value="${t}"]`);
-          if (cb) cb.checked = true;
+        const firmas = { docente: null, estudiante: null, toe: null };
+
+        function inicializarFirmas() {
+            ['docente', 'estudiante', 'toe'].forEach(tipo => {
+                const canvas = document.getElementById(`canvas-${tipo}`);
+                const ctx = canvas.getContext('2d');
+                
+                function ajustarCanvas() {
+                    const rect = canvas.getBoundingClientRect();
+                    canvas.width = rect.width;
+                    canvas.height = rect.height;
+                }
+                ajustarCanvas();
+                window.addEventListener('resize', ajustarCanvas);
+
+                let dibujando = false;
+
+                function empezarTrazo(e) {
+                    dibujando = true;
+                    const rect = canvas.getBoundingClientRect();
+                    const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                    const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    document.getElementById(`label-${tipo}-hint`).style.display = 'none';
+                }
+
+                function moverTrazo(e) {
+                    if(!dibujando) return;
+                    e.preventDefault();
+                    const rect = canvas.getBoundingClientRect();
+                    const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                    const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                    ctx.lineTo(x, y);
+                    ctx.strokeStyle = '#03045e';
+                    ctx.lineWidth = 2;
+                    ctx.lineCap = 'round';
+                    ctx.stroke();
+                }
+
+                function pararTrazo() { dibujando = false; }
+
+                canvas.addEventListener('mousedown', empezarTrazo);
+                canvas.addEventListener('mousemove', moverTrazo);
+                canvas.addEventListener('mouseup', pararTrazo);
+                canvas.addEventListener('mouseleave', pararTrazo);
+
+                canvas.addEventListener('touchstart', empezarTrazo);
+                canvas.addEventListener('touchmove', moverTrazo);
+                canvas.addEventListener('touchend', pararTrazo);
+            });
         }
-      });
 
-      (rep.medidas || []).forEach(m => {
-        if (m.startsWith('Otro')) {
-          document.getElementById('chk-medida-otro').checked = true;
-          document.getElementById('inp-medida-otro').disabled = false;
-          document.getElementById('inp-medida-otro').value = m.replace(/^Otro:\s*/, '');
-        } else {
-          const cb = document.querySelector(`input[name="medidas"][value="${m}"]`);
-          if (cb) cb.checked = true;
+        function limpiarFirma(tipo) {
+            const canvas = document.getElementById(`canvas-${tipo}`);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById(`label-${tipo}-hint`).style.display = 'block';
         }
-      });
 
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      mostrarToast('Reporte cargado en la hoja oficial. Listo para imprimir o editar.', 'info');
-    }
+        function toggleOtroLugar(chk) {
+            const input = document.getElementById('input-lugar-otro');
+            input.classList.toggle('hidden', !chk.checked);
+        }
 
-    // =========================================================================
-    // CENTRAL DE REPORTES: UNIFICACIÓN DE BASE DE DATOS, FILTROS Y EXPORTACIÓN
-    // =========================================================================
-    function handleDragOver(e) {
-      e.preventDefault();
-      document.getElementById('drop-zone-reportes').classList.add('bg-sky-50', 'border-nsdc-azul');
-    }
+        function toggleOtraMedida(chk) {
+            const input = document.getElementById('input-medida-otra');
+            input.classList.toggle('hidden', !chk.checked);
+        }
 
-    function handleDragLeave(e) {
-      e.preventDefault();
-      document.getElementById('drop-zone-reportes').classList.remove('bg-sky-50', 'border-nsdc-azul');
-    }
+        function cambiarVista(vista) {
+            document.getElementById('vista-hoja').classList.toggle('hidden', vista !== 'hoja');
+            document.getElementById('vista-central').classList.toggle('hidden', vista !== 'central');
+            document.getElementById('btn-vista-hoja').className = vista === 'hoja' ? 'px-4 py-2 rounded-lg bg-celeste-institucional text-white font-medium text-sm shadow' : 'px-4 py-2 rounded-lg bg-sky-900 text-sky-200 font-medium text-sm hover:bg-sky-800';
+            document.getElementById('btn-vista-central').className = vista === 'central' ? 'px-4 py-2 rounded-lg bg-celeste-institucional text-white font-medium text-sm shadow' : 'px-4 py-2 rounded-lg bg-sky-900 text-sky-200 font-medium text-sm hover:bg-sky-800';
+        }
 
-    function handleDropReportes(e) {
-      e.preventDefault();
-      document.getElementById('drop-zone-reportes').classList.remove('bg-sky-50', 'border-nsdc-azul');
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        procesarArchivosSubidos(e.dataTransfer.files);
-      }
-    }
+        function verificarAccesoCentral() {
+            document.getElementById('modal-password').classList.remove('hidden');
+            document.getElementById('input-clave-toe').value = '';
+            document.getElementById('input-clave-toe').focus();
+        }
 
-    async function procesarArchivosSubidos(fileList) {
-      if (!fileList || fileList.length === 0) return;
-      let nuevosAgregados = 0;
-      let duplicadosOmitidos = 0;
+        function cerrarModalToe() {
+            document.getElementById('modal-password').classList.add('hidden');
+        }
 
-      for (const file of fileList) {
-        try {
-          const text = await file.text();
-          let registros = [];
-
-          if (file.name.toLowerCase().endsWith('.json')) {
-            const parsed = JSON.parse(text);
-            if (Array.isArray(parsed)) {
-              registros = parsed;
-            } else if (parsed.reportes && Array.isArray(parsed.reportes)) {
-              registros = parsed.reportes;
-            } else if (parsed.id || parsed.estudiantes) {
-              registros = [parsed];
-            }
-          } else if (file.name.toLowerCase().endsWith('.csv')) {
-            registros = parsearCSVReportes(text);
-          }
-
-          registros.forEach(reg => {
-            if (!reg || (!reg.estudiantes && !reg.descripcion)) return;
-            const fp = reg.fingerprint || `${reg.fecha}_${reg.hora}_${reg.grado}_${(reg.estudiantes || '').slice(0, 20)}`;
-            const yaExiste = reportesDB.some(existing => existing.id === reg.id || existing.fingerprint === fp);
-            if (!yaExiste) {
-              reportesDB.push({
-                ...reg,
-                id: reg.id || 'NSDC-IMP-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-                fingerprint: fp
-              });
-              nuevosAgregados++;
+        function validarClaveToe() {
+            const clave = document.getElementById('input-clave-toe').value.trim();
+            if(clave.toLowerCase() === 'frarava') {
+                cerrarModalToe();
+                cambiarVista('central');
+                renderizarTablaCentral();
             } else {
-              duplicadosOmitidos++;
+                alert('Contraseña incorrecta. Intente nuevamente.');
+                document.getElementById('input-clave-toe').value = '';
             }
-          });
-        } catch (err) {
-          console.error('Error leyendo archivo:', file.name, err);
-          mostrarToast(`No se pudo leer el archivo ${file.name}`, 'error');
         }
-      }
 
-      // Ordenar por fecha y hora más reciente
-      reportesDB.sort((a, b) => `${b.fecha} ${b.hora}`.localeCompare(`${a.fecha} ${a.hora}`));
-      guardarReportesEnStorage();
+        function guardarYExportarReporte() {
+            const docente = document.getElementById('input-docente').value.trim();
+            if(!docente) {
+                alert('Por favor ingrese el nombre del docente que reporta.');
+                document.getElementById('input-docente').focus();
+                return;
+            }
+            localStorage.setItem('iei31_docente_actual', docente);
 
-      mostrarToast(
-        `Unificación lista: +${nuevosAgregados} reporte(s) nuevo(s)${duplicadosOmitidos > 0 ? ` (${duplicadosOmitidos} duplicados omitidos)` : ''}.`,
-        'success'
-      );
-      document.getElementById('input-subir-reportes').value = '';
-    }
+            const lugares = Array.from(document.querySelectorAll('input[name="lugar"]:checked')).map(el => el.value);
+            const otroLugar = document.getElementById('input-lugar-otro').value.trim();
+            if(otroLugar) lugares.push(otroLugar);
 
-    function parsearCSVReportes(csvText) {
-      const lineas = csvText.split(/\r?\n/).filter(l => l.trim() !== '');
-      if (lineas.length < 2) return [];
-      const sep = lineas[0].includes(';') ? ';' : ',';
-      const resultados = [];
+            const tipos = Array.from(document.querySelectorAll('input[name="tipo"]:checked')).map(el => el.value);
+            const medidas = Array.from(document.querySelectorAll('input[name="medida"]:checked')).map(el => el.value);
+            const otraMedida = document.getElementById('input-medida-otra').value.trim();
+            if(otraMedida) medidas.push(otraMedida);
 
-      for (let i = 1; i < lineas.length; i++) {
-        const cols = lineas[i].split(sep).map(c => c.replace(/^"|"$/g, '').trim());
-        if (cols.length >= 4) {
-          resultados.push({
-            fecha: cols[0] || '',
-            hora: cols[1] || '',
-            grado: cols[2] || '',
-            docente: cols[3] || '',
-            estudiantes: cols[4] || '',
-            lugares: cols[5] ? cols[5].split('|').map(s => s.trim()) : [],
-            tipos: cols[6] ? cols[6].split('|').map(s => s.trim()) : [],
-            descripcion: cols[7] || '',
-            medidas: cols[8] ? cols[8].split('|').map(s => s.trim()) : [],
-            observaciones: cols[9] || ''
-          });
-        }
-      }
-      return resultados;
-    }
+            const reporte = {
+                id: 'INC-' + Date.now(),
+                fecha: document.getElementById('input-fecha').value,
+                hora: document.getElementById('input-hora').value,
+                grado: document.getElementById('input-grado').value,
+                seccion: document.getElementById('input-seccion').value.trim(),
+                docente: docente,
+                estudiantes: document.getElementById('input-estudiantes').value.trim(),
+                lugar: lugares.join(', '),
+                descripcion: document.getElementById('input-descripcion').value.trim(),
+                tipo: tipos.join(', '),
+                medidas: medidas.join(', '),
+                observaciones: document.getElementById('input-observaciones').value.trim(),
+                firmaDocente: document.getElementById('canvas-docente').toDataURL(),
+                firmaEstudiante: document.getElementById('canvas-estudiante').toDataURL(),
+                firmaToe: document.getElementById('canvas-toe').toDataURL()
+            };
 
-    // Exportar toda la base unificada a Excel (.csv compatible con tildes UTF-8 BOM)
-    function exportarBaseUnificadaCSV() {
-      if (reportesDB.length === 0) {
-        mostrarToast('No hay reportes en la Central para exportar.', 'warning');
-        return;
-      }
-      const encabezados = ['Fecha', 'Hora', 'Grado/Seccion', 'Docente', 'Estudiantes', 'Lugar', 'Tipo Incidencia', 'Descripcion', 'Medidas Tomadas', 'Observaciones'];
-      const filas = reportesDB.map(r => [
-        r.fecha,
-        r.hora,
-        r.grado,
-        r.docente,
-        r.estudiantes,
-        (r.lugares || []).join(' | '),
-        (r.tipos || []).join(' | '),
-        r.descripcion,
-        (r.medidas || []).join(' | '),
-        r.observaciones
-      ].map(val => `"${String(val || '').replace(/"/g, '""')}"`).join(';'));
-
-      const csvContent = '\uFEFF' + [encabezados.join(';'), ...filas].join('\r\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const fechaHoy = new Date().toISOString().slice(0, 10);
-      descargarBlob(blob, `Base_Unificada_Incidencias_NSDC_${fechaHoy}.csv`);
-      mostrarToast('Base unificada exportada para Excel (.csv).', 'success');
-    }
-
-    function exportarRespaldoCompletoJSON() {
-      const backup = {
-        institucion: 'IEI 31 "Nuestra Señora del Carmen" - Yanacancha, Cerro de Pasco',
-        fechaRespaldo: new Date().toISOString(),
-        totalReportes: reportesDB.length,
-        reportes: reportesDB,
-        padronEstudiantes
-      };
-      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-      descargarBlob(blob, `Respaldo_Central_NSDC_${new Date().toISOString().slice(0, 10)}.json`);
-      mostrarToast('Respaldo completo descargado.', 'success');
-    }
-
-    function eliminarReporteCentral(id) {
-      reportesDB = reportesDB.filter(r => r.id !== id);
-      guardarReportesEnStorage();
-      mostrarToast('Reporte eliminado del listado.', 'info');
-    }
-
-    // =========================================================================
-    // PADRÓN DE ESTUDIANTES (BASE DE DATOS EXTERNA OPCIONAL)
-    // =========================================================================
-    async function cargarPadronEstudiantes(file) {
-      if (!file) return;
-      try {
-        const text = await file.text();
-        let lista = [];
-        if (file.name.toLowerCase().endsWith('.json')) {
-          const data = JSON.parse(text);
-          lista = Array.isArray(data) ? data : (data.estudiantes || []);
-        } else {
-          const lineas = text.split(/\r?\n/).filter(l => l.trim() !== '');
-          const sep = lineas[0].includes(';') ? ';' : ',';
-          for (let i = 1; i < lineas.length; i++) {
-            const [nombre, grado] = lineas[i].split(sep).map(c => c.replace(/^"|"$/g, '').trim());
-            if (nombre) lista.push({ nombre, grado: grado || '' });
-          }
-        }
-        padronEstudiantes = lista;
-        localStorage.setItem(STORAGE_KEYS.PADRON, JSON.stringify(padronEstudiantes));
-        actualizarEstadoPadron();
-        mostrarToast(`Padrón cargado con ${padronEstudiantes.length} estudiante(s).`, 'success');
-      } catch (e) {
-        mostrarToast('Error al leer el archivo de padrón.', 'error');
-      }
-    }
-
-    function actualizarEstadoPadron() {
-      const count = padronEstudiantes.length;
-      document.getElementById('badge-padron-count').textContent = `${count} alumnos`;
-      const btnBuscar = document.getElementById('btn-buscar-padron');
-      if (count > 0) {
-        btnBuscar.classList.remove('hidden');
-      } else {
-        btnBuscar.classList.add('hidden');
-      }
-    }
-
-    function descargarPlantillaPadronCSV() {
-      const ejemplo = '\uFEFFNombre Completo;Grado y Seccion\r\nQUISPE MAMANI, Juan Carlos;3° "A"\r\nHUAMAN ROJAS, María Fernanda;3° "A"\r\n';
-      descargarBlob(new Blob([ejemplo], { type: 'text/csv;charset=utf-8;' }), 'Plantilla_Padron_NSDC.csv');
-    }
-
-    function abrirModalPadron() {
-      document.getElementById('modal-quick-students').classList.remove('hidden');
-      document.getElementById('inp-buscar-alumno-modal').value = '';
-      filtrarModalPadron();
-      document.getElementById('inp-buscar-alumno-modal').focus();
-    }
-
-    function filtrarModalPadron() {
-      const q = document.getElementById('inp-buscar-alumno-modal').value.toLowerCase();
-      const filtrados = padronEstudiantes.filter(a =>
-        (a.nombre || '').toLowerCase().includes(q) || (a.grado || '').toLowerCase().includes(q)
-      ).slice(0, 40);
-
-      const cont = document.getElementById('lista-alumnos-modal');
-      if (filtrados.length === 0) {
-        cont.innerHTML = '<p class="py-4 text-center text-slate-400">No se encontraron coincidencias.</p>';
-        return;
-      }
-
-      cont.innerHTML = filtrados.map(a => `
-        <button type="button" onclick="seleccionarAlumnoDelPadron('${escapeHTML(a.nombre)}', '${escapeHTML(a.grado || '')}')" class="w-full text-left py-2.5 px-2 hover:bg-sky-50 flex items-center justify-between transition">
-          <span class="font-bold text-slate-800">${escapeHTML(a.nombre)}</span>
-          <span class="text-[11px] font-bold bg-sky-100 text-nsdc-azul px-2 py-0.5 rounded">${escapeHTML(a.grado || '')}</span>
-        </button>
-      `).join('');
-    }
-
-    function seleccionarAlumnoDelPadron(nombre, grado) {
-      const textarea = document.getElementById('inp-estudiantes');
-      textarea.value = textarea.value.trim() ? `${textarea.value.trim()}, ${nombre}` : nombre;
-      document.getElementById('firma-nombre-estudiante').textContent = textarea.value.trim();
-      if (grado && !document.getElementById('inp-grado').value) {
-        document.getElementById('inp-grado').value = grado;
-      }
-      cerrarModal('modal-quick-students');
-      mostrarToast(`Estudiante agregado: ${nombre}`, 'info');
-    }
-
-    // =========================================================================
-    // CONFIGURACIÓN OPCIONAL DE NUBE (FIREBASE / GOOGLE SHEETS)
-    // =========================================================================
-    function guardarConfigNube() {
-      const url = document.getElementById('inp-cloud-url').value.trim();
-      localStorage.setItem(STORAGE_KEYS.CLOUD_URL, url);
-      const pill = document.getElementById('cloud-status-pill');
-      if (url) {
-        pill.textContent = 'Nube Configurada';
-        pill.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
-        mostrarToast('Enlace de sincronización en la nube guardado.', 'success');
-      } else {
-        pill.textContent = 'Modo Local Activo';
-        pill.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600';
-        mostrarToast('Enlace eliminado. Trabajando en modo local.', 'info');
-      }
-    }
-
-    async function enviarReporteANube(url, reporte) {
-      try {
-        await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(reporte)
-        });
-      } catch (e) {
-        console.warn('No se pudo sincronizar en este instante (modo offline):', e);
-      }
-    }
-
-    async function sincronizarDesdeNube() {
-      const url = localStorage.getItem(STORAGE_KEYS.CLOUD_URL);
-      if (!url) {
-        mostrarToast('Pegue primero una URL de Firebase o Google Sheets.', 'warning');
-        return;
-      }
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        if (!data) return;
-        const lista = Array.isArray(data) ? data : Object.values(data);
-        let agregados = 0;
-        lista.forEach(item => {
-          if (item && item.estudiantes && !reportesDB.some(r => r.id === item.id || r.fingerprint === item.fingerprint)) {
-            reportesDB.push(item);
-            agregados++;
-          }
-        });
-        reportesDB.sort((a, b) => `${b.fecha} ${b.hora}`.localeCompare(`${a.fecha} ${a.hora}`));
-        guardarReportesEnStorage();
-        mostrarToast(`Sincronización completada: +${agregados} reporte(s) nuevo(s).`, 'success');
-      } catch (e) {
-        mostrarToast('Error conectando con la nube. Verifique su internet o el enlace.', 'error');
-      }
-    }
-
-    // =========================================================================
-    // RENDERIZADO DE INTERFAZ Y ESTADÍSTICAS
-    // =========================================================================
-    function actualizarUIReportes() {
-      document.getElementById('badge-total-reportes').textContent = reportesDB.length;
-
-      // Estadísticas
-      document.getElementById('stat-total').textContent = reportesDB.length;
-      document.getElementById('stat-conducta').textContent = reportesDB.filter(r =>
-        (r.tipos || []).some(t => t.includes('Conductual') || t.includes('Disciplina'))
-      ).length;
-      document.getElementById('stat-toe').textContent = reportesDB.filter(r =>
-        (r.medidas || []).some(m => m.includes('TOE'))
-      ).length;
-      const mesActual = new Date().toISOString().slice(0, 7);
-      document.getElementById('stat-mes').textContent = reportesDB.filter(r =>
-        (r.fecha || '').startsWith(mesActual)
-      ).length;
-
-      renderizarListaRecientesDocente();
-      renderizarTablaCentral();
-    }
-
-    function renderizarListaRecientesDocente() {
-      const cont = document.getElementById('lista-recientes-docente');
-      if (reportesDB.length === 0) {
-        cont.innerHTML = '<p class="py-6 text-center text-xs text-slate-400">Aún no ha guardado reportes en este equipo.</p>';
-        return;
-      }
-
-      cont.innerHTML = reportesDB.slice(0, 8).map(r => `
-        <div class="py-2.5 flex items-center justify-between gap-2">
-          <div class="min-w-0">
-            <p class="text-xs font-extrabold text-nsdc-azul truncate">${escapeHTML(r.estudiantes)} <span class="font-semibold text-nsdc-celeste">(${escapeHTML(r.grado)})</span></p>
-            <p class="text-[11px] text-slate-500 truncate">${escapeHTML(r.fecha)} • ${escapeHTML(r.hora)} — ${escapeHTML(r.descripcion)}</p>
-          </div>
-          <button type="button" onclick="cargarReporteEnFormulario('${r.id}')" class="shrink-0 px-2.5 py-1.5 bg-sky-50 hover:bg-sky-100 text-nsdc-azul font-bold rounded-lg text-[11px] border border-sky-200 transition">
-            <i class="fa-solid fa-print mr-1"></i>Ver / Imprimir
-          </button>
-        </div>
-      `).join('');
-    }
-
-    function renderizarTablaCentral() {
-      const texto = (document.getElementById('filtro-texto').value || '').toLowerCase();
-      const tipo = document.getElementById('filtro-tipo').value;
-      const fecha = document.getElementById('filtro-fecha').value;
-
-      const filtrados = reportesDB.filter(r => {
-        const matchTexto = !texto ||
-          (r.estudiantes || '').toLowerCase().includes(texto) ||
-          (r.docente || '').toLowerCase().includes(texto) ||
-          (r.grado || '').toLowerCase().includes(texto) ||
-          (r.descripcion || '').toLowerCase().includes(texto);
-        const matchTipo = !tipo || (r.tipos || []).some(t => t.includes(tipo));
-        const matchFecha = !fecha || r.fecha === fecha;
-        return matchTexto && matchTipo && matchFecha;
-      });
-
-      const tbody = document.getElementById('tbody-central');
-      if (filtrados.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="6" class="py-8 text-center text-slate-400 text-xs">
-              <i class="fa-solid fa-folder-open text-2xl text-sky-200 block mb-2"></i>
-              No hay reportes que coincidan con la búsqueda actual.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      tbody.innerHTML = filtrados.map(r => {
-        const tieneFirmas = r.firmas && (r.firmas.docente || r.firmas.estudiante || r.firmas.toe);
-        return `
-        <tr class="hover:bg-sky-50/60 transition">
-          <td class="py-3 px-3.5 whitespace-nowrap font-semibold text-slate-700">
-            ${escapeHTML(r.fecha)}<br><span class="text-[11px] text-slate-400">${escapeHTML(r.hora)}</span>
-          </td>
-          <td class="py-3 px-3.5 whitespace-nowrap">
-            <span class="bg-sky-100 text-nsdc-azul font-extrabold px-2 py-0.5 rounded-md">${escapeHTML(r.grado)}</span>
-          </td>
-          <td class="py-3 px-3.5 font-bold text-slate-800 max-w-[200px]">
-            ${escapeHTML(r.estudiantes)}
-            <p class="text-[11px] font-normal text-slate-500 truncate mt-0.5">${escapeHTML(r.descripcion)}</p>
-          </td>
-          <td class="py-3 px-3.5">
-            <span class="text-[11px] font-bold text-nsdc-celeste block">${escapeHTML((r.tipos || []).join(', ') || 'General')}</span>
-            <span class="text-[10px] text-slate-400">${escapeHTML((r.lugares || []).join(', '))}</span>
-          </td>
-          <td class="py-3 px-3.5 text-slate-600 font-medium">
-            ${escapeHTML(r.docente)}
-            ${tieneFirmas ? '<span class="block text-[10px] font-bold text-emerald-600 mt-0.5"><i class="fa-solid fa-signature mr-0.5"></i>Firmado digitalmente</span>' : ''}
-          </td>
-          <td class="py-3 px-3.5 text-center whitespace-nowrap">
-            <button onclick="cargarReporteEnFormulario('${r.id}')" title="Abrir e Imprimir Hoja Oficial con Firmas" class="p-2 bg-nsdc-celesteSoft hover:bg-sky-200 text-nsdc-azul rounded-lg mr-1 transition">
-              <i class="fa-solid fa-print"></i>
-            </button>
-            <button onclick="eliminarReporteCentral('${r.id}')" title="Eliminar registro" class="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </td>
-        </tr>
-      `;
-      }).join('');
-    }
-
-    // =========================================================================
-    // NAVEGACIÓN ENTRE PESTAÑAS Y UTILIDADES
-    // =========================================================================
-    function switchTab(tab) {
-      const tabForm = document.getElementById('tab-formulario');
-      const tabCentral = document.getElementById('tab-central');
-      const btnForm = document.getElementById('btn-tab-form');
-      const btnCentral = document.getElementById('btn-tab-central');
-
-      if (tab === 'form') {
-        tabForm.classList.remove('hidden');
-        tabCentral.classList.add('hidden');
-        btnForm.className = 'flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-white text-nsdc-azul shadow';
-        btnCentral.className = 'flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 text-sky-100 hover:text-white';
-      } else {
-        // Exigir contraseña FRARAVA para ingresar a la Central de Reportes (TOE)
-        if (!toeAutorizadoEnSesion) {
-          abrirModalAccesoTOE();
-          return;
-        }
-        tabForm.classList.add('hidden');
-        tabCentral.classList.remove('hidden');
-        btnCentral.className = 'flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-white text-nsdc-azul shadow';
-        btnForm.className = 'flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 text-sky-100 hover:text-white';
-        renderizarTablaCentral();
-      }
-    }
-
-    function abrirModalAccesoTOE() {
-      const modal = document.getElementById('modal-toe-auth');
-      const input = document.getElementById('inp-clave-toe');
-      const err = document.getElementById('msg-error-toe');
-      input.value = '';
-      input.type = 'password';
-      document.getElementById('icon-eye-toe').className = 'fa-solid fa-eye text-sm';
-      err.classList.add('hidden');
-      modal.classList.remove('hidden');
-      setTimeout(() => input.focus(), 50);
-    }
-
-    function toggleVisibilidadClaveTOE() {
-      const input = document.getElementById('inp-clave-toe');
-      const icon = document.getElementById('icon-eye-toe');
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.className = 'fa-solid fa-eye-slash text-sm';
-      } else {
-        input.type = 'password';
-        icon.className = 'fa-solid fa-eye text-sm';
-      }
-    }
-
-    function verificarClaveTOE(e) {
-      e.preventDefault();
-      const valor = (document.getElementById('inp-clave-toe').value || '').trim().toUpperCase();
-      if (valor === CLAVE_CENTRAL_TOE) {
-        toeAutorizadoEnSesion = true;
-        cerrarModal('modal-toe-auth');
-        mostrarToast('Bienvenido, Coordinación TOE.', 'success');
-        switchTab('central');
-      } else {
-        const err = document.getElementById('msg-error-toe');
-        err.classList.remove('hidden');
-        document.getElementById('inp-clave-toe').select();
-      }
-    }
-
-    function descargarBlob(blob, filename) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    function cerrarModal(id) {
-      document.getElementById(id).classList.add('hidden');
-    }
-
-    function escapeHTML(str) {
-      return String(str || '').replace(/[&<>"']/g, m => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      }[m]));
-    }
-
-    function mostrarToast(mensaje, tipo = 'info') {
-      const container = document.getElementById('toast-container');
-      const colores = {
-        success: 'bg-emerald-600 text-white',
-        error: 'bg-red-600 text-white',
-        warning: 'bg-amber-500 text-slate-950',
-        info: 'bg-nsdc-azul text-white'
-      };
-      const iconos = {
-        success: 'fa-circle-check',
-        error: 'fa-circle-exclamation',
-        warning: 'fa-triangle-exclamation',
-        info: 'fa-circle-info'
-      };
-      const el = document.createElement('div');
-      el.className = `toast-enter pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-xl text-xs sm:text-sm font-bold ${colores[tipo] || colores.info}`;
-      el.innerHTML = `<i class="fa-solid ${iconos[tipo] || iconos.info}"></i><span>${escapeHTML(mensaje)}</span>`;
-      container.appendChild(el);
-      setTimeout(() => {
-        el.style.opacity = '0';
-        el.style.transition = 'opacity 0.3s';
-        setTimeout(() => el.remove(), 300);
-      }, 3600);
-    }
-
-    // =========================================================================
-    // CONFIGURACIÓN PROGRESSIVE WEB APP (MANIFEST DINÁMICO + SERVICE WORKER)
-    // =========================================================================
-    function registrarPWA() {
-      // Icono SVG codificado para el manifest de instalación
-      const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" rx="36" fill="#1e3a8a"/><path d="M32,20 Q90,10 148,20 L154,95 Q148,152 90,170 Q32,152 26,95 Z" fill="#e11d48" stroke="#f59e0b" stroke-width="6"/><path d="M68,16 L112,16 L112,163 Q90,170 68,163 Z" fill="#ffffff"/><text x="90" y="75" font-family="Arial,sans-serif" font-size="26" font-weight="900" fill="#1e293b" text-anchor="middle">31</text><text x="90" y="148" font-family="Arial,sans-serif" font-size="14" font-weight="900" fill="#1e293b" text-anchor="middle">NSDC</text></svg>`;
-      const iconDataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(iconSvg);
-
-      const manifest = {
-        name: 'Incidencias IEI 31 "Nuestra Señora del Carmen"',
-        short_name: 'Incidencias NSDC',
-        description: 'Registro y Central de Incidencias - IEI N° 31 Nuestra Señora del Carmen, Yanacancha - Cerro de Pasco',
-        start_url: '.',
-        display: 'standalone',
-        background_color: '#f8fafc',
-        theme_color: '#1e3a8a',
-        icons: [
-          { src: iconDataUri, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
-          { src: iconDataUri, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
-        ]
-      };
-
-      const manifestLink = document.createElement('link');
-      manifestLink.rel = 'manifest';
-      manifestLink.href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
-      document.head.appendChild(manifestLink);
-
-      // Capturar evento nativo de instalación en Chrome/Edge/Android
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredInstallPrompt = e;
-      });
-
-      // Registrar Service Worker inline para funcionamiento offline
-      if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
-        const swCode = `
-          const CACHE_NAME = 'nsdc-incidencias-v1';
-          self.addEventListener('install', e => self.skipWaiting());
-          self.addEventListener('activate', e => e.waitUntil(clients.claim()));
-          self.addEventListener('fetch', e => {
-            e.respondWith(
-              fetch(e.request).catch(() => caches.match(e.request))
-            );
-          });
-        `;
-        const swBlob = new Blob([swCode], { type: 'application/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
-      }
-    }
-
-    async function triggerInstallPWA() {
-      if (deferredInstallPrompt) {
-        deferredInstallPrompt.prompt();
-        const { outcome } = await deferredInstallPrompt.userChoice;
-        if (outcome === 'accepted') {
-          deferredInstallPrompt = null;
-          mostrarToast('¡Aplicación instalada en su dispositivo!', 'success');
-        }
-      } else {
-        document.getElementById('modal-install').classList.remove('hidden');
-      }
-    }
-  </script>
-
-</body></html>
+            let base = JSON.parse(localStorage.getItem('iei31_base_reportes') || '[]');
+            base.push(reporte);
+            localStorage.setItem('iei31_base_reportes
